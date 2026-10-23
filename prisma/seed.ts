@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Starting DRCP database seeding...');
+  console.log('[Seed] Starting DRCP database seeding...');
 
   // 1. Clear existing records
   await prisma.communityReport.deleteMany();
@@ -12,7 +12,7 @@ async function main() {
   await prisma.user.deleteMany();
 
   // 2. Seed Users
-  console.log('👤 Seeding Users & Roles...');
+  console.log('[Seed] Seeding Users and Roles...');
   const adminUser = await prisma.user.create({
     data: {
       username: 'admin',
@@ -38,7 +38,7 @@ async function main() {
   });
 
   // 3. Seed Disasters
-  console.log('🚨 Seeding Disaster Incidents...');
+  console.log('[Seed] Seeding Disaster Incidents...');
   const manhattanDisaster = await prisma.disaster.create({
     data: {
       title: 'Flash Flood in Lower Manhattan',
@@ -79,7 +79,7 @@ async function main() {
   });
 
   // 4. Seed Emergency Resources around Manhattan (various radii & types)
-  console.log('🏥 Seeding Emergency Resources...');
+  console.log('[Seed] Seeding Emergency Resources...');
   await prisma.emergencyResource.createMany({
     data: [
       {
@@ -158,7 +158,7 @@ async function main() {
   });
 
   // 5. Seed Community Reports
-  console.log('📢 Seeding Community Reports...');
+  console.log('[Seed] Seeding Community Reports...');
   await prisma.communityReport.createMany({
     data: [
       {
@@ -182,12 +182,12 @@ async function main() {
     ],
   });
 
-  console.log('✅ Seeding completed successfully!');
+  console.log('[Seed] Seeding completed successfully.');
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Seeding failed:', e);
+    console.error('[Seed] Error during seeding:', e);
     process.exit(1);
   })
   .finally(async () => {

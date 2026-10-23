@@ -4,9 +4,9 @@ import { logger } from './common/logger';
 import { prisma } from './common/prisma';
 
 const server = app.listen(config.port, () => {
-  logger.info(`🚀 DRCP API Server running on port ${config.port} [${config.nodeEnv}]`);
-  logger.info(`👉 Health Check: http://localhost:${config.port}/health`);
-  logger.info(`👉 Disasters API: http://localhost:${config.port}/api/v1/disasters`);
+  logger.info(`[Server] DRCP API Server listening on port ${config.port} [env: ${config.nodeEnv}]`);
+  logger.info(`[Server] Health Check available at http://localhost:${config.port}/health`);
+  logger.info(`[Server] Disasters API available at http://localhost:${config.port}/api/v1/disasters`);
 });
 
 // Graceful shutdown handling
