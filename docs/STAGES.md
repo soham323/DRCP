@@ -3,11 +3,11 @@
 
 | Field         | Value                                                  |
 | :------------ | :----------------------------------------------------- |
-| **Version**   | 1.2.0                                                  |
+| **Version**   | 1.4.0                                                  |
 | **Status**    | Active                                                 |
 | **Owner**     | Soham Khare                                            |
 | **Created**   | 2026-10-23 16:35 IST                                   |
-| **Updated**   | 2026-10-23 16:56 IST                                   |
+| **Updated**   | 2026-10-23 22:53 IST                                   |
 | **Project**   | Disaster Response Coordination Platform (DRCP)         |
 
 ---
@@ -16,6 +16,8 @@
 
 | Version | Date & Time          | Summary of Changes                                                      |
 | :------ | :------------------- | :---------------------------------------------------------------------- |
+| 1.4.0   | 2026-10-23 22:53 IST | Completed Stage 1: ST-1-1, ST-1-2, ST-1-3, ST-1-4 all Done.            |
+| 1.3.0   | 2026-10-23 22:50 IST | Commenced Stage 1; marked ST-1-1 through ST-1-4 In Progress.            |
 | 1.2.0   | 2026-10-23 16:56 IST | Completed Stage 0: ST-0-1, ST-0-2, ST-0-3, ST-0-4 all Done.            |
 | 1.1.0   | 2026-10-23 16:53 IST | Commenced Stage 0; marked ST-0-1 In Progress.                           |
 | 1.0.0   | 2026-10-23 16:35 IST | Initial STAGES.md created with 7 stages (Stage 0 - Stage 6) and 24 tasks.|
@@ -27,11 +29,11 @@
 | Metric         | Count |
 | :------------- | :---- |
 | Total Tasks    | 24    |
-| ✅ Done        | 4     |
+| ✅ Done        | 8     |
 | 🟡 In Progress | 0     |
 | 🔵 Testing     | 0     |
 | 🔴 Blocked     | 0     |
-| ⬜ To Do       | 20    |
+| ⬜ To Do       | 16    |
 
 ---
 
@@ -58,10 +60,10 @@
 
 | Task ID | Task Description | Status | Related FRs / NFRs | Notes |
 | :--- | :--- | :--- | :--- | :--- |
-| **ST-1-1** | Implement Disaster Repository & Service Layer (`src/modules/disasters/`). | ⬜ To Do | FR-001, FR-002, FR-003 | Clean data access |
-| **ST-1-2** | Build NLP Location Extractor & Geocoding Service with Nominatim integration and resilient coordinate hub fallback. | ⬜ To Do | FR-007, FR-008, NFR-003 | No API key needed |
-| **ST-1-3** | Implement Disaster Controller (`POST`, `GET /:id`, `PATCH /:id`, `DELETE /:id`) with Zod request validation. | ⬜ To Do | FR-001, FR-003, FR-004, FR-006 | Strict validation |
-| **ST-1-4** | Add filtering query parameters (`GET /disasters?tag=&status=&limit=&offset=`). | ⬜ To Do | FR-002 | Tag & status filters |
+| **ST-1-1** | Implement Disaster Repository & Service Layer (`src/modules/disasters/`). | ✅ Done | FR-001, FR-002, FR-003 | Clean data access |
+| **ST-1-2** | Build NLP Location Extractor & Geocoding Service with Nominatim integration and resilient coordinate hub fallback. | ✅ Done | FR-007, FR-008, NFR-003 | No API key needed |
+| **ST-1-3** | Implement Disaster Controller (`POST`, `GET /:id`, `PATCH /:id`, `DELETE /:id`) with Zod request validation. | ✅ Done | FR-001, FR-003, FR-004, FR-006 | Strict validation |
+| **ST-1-4** | Add filtering query parameters (`GET /disasters?tag=&status=&limit=&offset=`). | ✅ Done | FR-002 | Tag & status filters |
 
 ---
 
