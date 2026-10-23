@@ -2,6 +2,7 @@ import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import disasterRoutes from './modules/disasters/disaster.routes';
+import resourceRoutes from './modules/resources/resource.routes';
 import { errorHandler } from './middleware/error.middleware';
 import { NotFoundError } from './common/errors';
 
@@ -23,9 +24,12 @@ export function createApp(): Application {
     });
   });
 
-  // 3. API Domain Routes (Supporting both standard /api/v1/disasters and direct /disasters)
+  // 3. API Domain Routes (Supporting both standard /api/v1 and root shortcuts)
   app.use('/api/v1/disasters', disasterRoutes);
   app.use('/disasters', disasterRoutes);
+
+  app.use('/api/v1/resources', resourceRoutes);
+  app.use('/resources', resourceRoutes);
 
   // 4. Catch-all 404 Route Handler
   app.use((req: Request, _res: Response, next: NextFunction) => {
