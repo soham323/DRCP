@@ -724,7 +724,7 @@ All environment variables have safe, out-of-the-box local defaults.
 | `PORT` | number | `3000` | Backend HTTP server port |
 | `NODE_ENV` | string | `development` | Environment mode (`development`, `production`, `test`) |
 | `DATABASE_URL` | string | `file:./dev.db` | SQLite connection string (or PostgreSQL URI) |
-| `JWT_SECRET` | string | `drcp-super-secret-key-2026` | Secret key for JWT signing |
+| `JWT_SECRET` | string | `your-jwt-secret-key-here` | Secret key for JWT signing |
 | `CACHE_DRIVER` | string | `memory` | Cache backend: `memory` or `redis` |
 | `REDIS_URL` | string | `redis://localhost:6379` | Optional Redis URI if `CACHE_DRIVER=redis` |
 | `REPORTS_CACHE_TTL`| number | `120` | Cache lifespan for community reports in seconds |

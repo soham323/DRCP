@@ -1,0 +1,69 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Disaster {
+  id           String            @id @default(uuid())
+  title        String
+  description  String
+  locationName String            @map("location_name")
+  latitude     Float
+  longitude    Float
+  tags         String            @default("[]") // JSON serialized array of strings
+  status       String            @default("ACTIVE") // ACTIVE, CONTAINED, RESOLVED
+  createdBy    String            @default("system") @map("created_by")
+  createdAt    DateTime          @default(now()) @map("created_at")
+  updatedAt    DateTime          @updatedAt @map("updated_at")
+
+  reports      CommunityReport[]
+
+  @@index([status])
+  @@index([latitude, longitude])
+  @@map("disasters")
+}
+
+model EmergencyResource {
+  id           String   @id @default(uuid())
+  name         String
+  type         String   // SHELTER, HOSPITAL, FOOD, WATER, RESCUE
+  locationName String   @map("location_name")
+  latitude     Float
+  longitude    Float
+  capacity     Int      @default(0)
+  status       String   @default("AVAILABLE") // AVAILABLE, LIMITED, DEPLETED
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@index([type])
+  @@index([latitude, longitude])
+  @@map("emergency_resources")
+}
+
+model CommunityReport {
+  id         String   @id @default(uuid())
+  disasterId String   @map("disaster_id")
+  content    String
+  author     String
+  source     String   @default("social_media")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  disaster   Disaster @relation(fields: [disasterId], references: [id], onDelete: Cascade)
+
+  @@index([disasterId])
+  @@map("community_reports")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  role      String   @default("VIEWER") // ADMIN, CONTRIBUTOR, VIEWER
+  apiKey    String   @unique @map("api_key")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("users")
+}

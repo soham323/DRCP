@@ -3,11 +3,11 @@
 
 | Field         | Value                                                  |
 | :------------ | :----------------------------------------------------- |
-| **Version**   | 1.0.0                                                  |
+| **Version**   | 1.2.0                                                  |
 | **Status**    | Active                                                 |
 | **Owner**     | Soham Khare                                            |
 | **Created**   | 2026-10-23 16:35 IST                                   |
-| **Updated**   | 2026-10-23 16:35 IST                                   |
+| **Updated**   | 2026-10-23 16:56 IST                                   |
 | **Project**   | Disaster Response Coordination Platform (DRCP)         |
 
 ---
@@ -16,6 +16,8 @@
 
 | Version | Date & Time          | Summary of Changes                                                      |
 | :------ | :------------------- | :---------------------------------------------------------------------- |
+| 1.2.0   | 2026-10-23 16:56 IST | Completed Stage 0: ST-0-1, ST-0-2, ST-0-3, ST-0-4 all Done.            |
+| 1.1.0   | 2026-10-23 16:53 IST | Commenced Stage 0; marked ST-0-1 In Progress.                           |
 | 1.0.0   | 2026-10-23 16:35 IST | Initial STAGES.md created with 7 stages (Stage 0 - Stage 6) and 24 tasks.|
 
 ---
@@ -25,11 +27,11 @@
 | Metric         | Count |
 | :------------- | :---- |
 | Total Tasks    | 24    |
-| ✅ Done        | 0     |
+| ✅ Done        | 4     |
 | 🟡 In Progress | 0     |
 | 🔵 Testing     | 0     |
 | 🔴 Blocked     | 0     |
-| ⬜ To Do       | 24    |
+| ⬜ To Do       | 20    |
 
 ---
 
@@ -42,10 +44,10 @@
 
 | Task ID | Task Description | Status | Related FRs / NFRs | Notes |
 | :--- | :--- | :--- | :--- | :--- |
-| **ST-0-1** | Initialize Node.js TypeScript project, dependencies (Express, Socket.io, Prisma, Zod, Vitest, Supertest), and tsconfig. | ⬜ To Do | NFR-002, NFR-005 | Root setup |
-| **ST-0-2** | Configure `prisma/schema.prisma` (Disaster, EmergencyResource, CommunityReport, User) and generate client. | ⬜ To Do | FR-001, FR-009, FR-012 | SQLite default |
-| **ST-0-3** | Implement structured configuration loader (`src/config/`), RFC 7807 error classes, and global error handling middleware. | ⬜ To Do | FR-006, NFR-004 | Error safety |
-| **ST-0-4** | Create comprehensive database seed script (`prisma/seed.ts`) with realistic disasters and resources (Manhattan & global). | ⬜ To Do | FR-009, NFR-002 | Test data ready |
+| **ST-0-1** | Initialize Node.js TypeScript project, dependencies (Express, Socket.io, Prisma, Zod, Vitest, Supertest), and tsconfig. | ✅ Done | NFR-002, NFR-005 | Root setup complete |
+| **ST-0-2** | Configure `prisma/schema.prisma` (Disaster, EmergencyResource, CommunityReport, User) and generate client. | ✅ Done | FR-001, FR-009, FR-012 | SQLite dev.db created |
+| **ST-0-3** | Implement structured configuration loader (`src/config/`), RFC 7807 error classes, and global error handling middleware. | ✅ Done | FR-006, NFR-004 | Error safety ready |
+| **ST-0-4** | Create comprehensive database seed script (`prisma/seed.ts`) with realistic disasters and resources (Manhattan & global). | ✅ Done | FR-009, NFR-002 | Seed verified |
 
 ---
 
