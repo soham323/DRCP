@@ -3,11 +3,11 @@
 
 | Field         | Value                                                  |
 | :------------ | :----------------------------------------------------- |
-| **Version**   | 1.4.0                                                  |
+| **Version**   | 1.6.0                                                  |
 | **Status**    | Active                                                 |
 | **Owner**     | Soham Khare                                            |
 | **Created**   | 2026-10-23 16:35 IST                                   |
-| **Updated**   | 2026-10-23 22:53 IST                                   |
+| **Updated**   | 2026-10-24 02:20 IST                                   |
 | **Project**   | Disaster Response Coordination Platform (DRCP)         |
 
 ---
@@ -16,6 +16,8 @@
 
 | Version | Date & Time          | Summary of Changes                                                      |
 | :------ | :------------------- | :---------------------------------------------------------------------- |
+| 1.6.0   | 2026-10-24 02:20 IST | Completed Stage 2: ST-2-1, ST-2-2, ST-2-3, ST-2-4 all Done.            |
+| 1.5.0   | 2026-10-24 02:16 IST | Commenced Stage 2; marked ST-2-1 through ST-2-4 In Progress.            |
 | 1.4.0   | 2026-10-23 22:53 IST | Completed Stage 1: ST-1-1, ST-1-2, ST-1-3, ST-1-4 all Done.            |
 | 1.3.0   | 2026-10-23 22:50 IST | Commenced Stage 1; marked ST-1-1 through ST-1-4 In Progress.            |
 | 1.2.0   | 2026-10-23 16:56 IST | Completed Stage 0: ST-0-1, ST-0-2, ST-0-3, ST-0-4 all Done.            |
@@ -29,11 +31,11 @@
 | Metric         | Count |
 | :------------- | :---- |
 | Total Tasks    | 24    |
-| ✅ Done        | 8     |
+| ✅ Done        | 12    |
 | 🟡 In Progress | 0     |
 | 🔵 Testing     | 0     |
 | 🔴 Blocked     | 0     |
-| ⬜ To Do       | 16    |
+| ⬜ To Do       | 12    |
 
 ---
 
@@ -74,10 +76,10 @@
 
 | Task ID | Task Description | Status | Related FRs / NFRs | Notes |
 | :--- | :--- | :--- | :--- | :--- |
-| **ST-2-1** | Implement and unit-test Haversine great-circle calculation utility (`src/common/haversine.ts`). | ⬜ To Do | FR-010, NFR-001 | Sub-millisecond math |
-| **ST-2-2** | Implement Emergency Resource Service & Endpoint (`GET /disasters/:id/resources?radius=&lat=&lng=&type=`). | ⬜ To Do | FR-009, FR-010, FR-011 | Radius filtering |
-| **ST-2-3** | Implement Cache-Aside Layer (`src/cache/`) with In-Memory LRU cache and configurable TTLs. | ⬜ To Do | FR-014, NFR-001 | Cache-aside hit/miss |
-| **ST-2-4** | Implement External Social Reports Mock Feed & Normalization Service (`GET /disasters/:id/reports`) with circuit-breaker fallback. | ⬜ To Do | FR-012, FR-013, FR-014 | Outage tolerance |
+| **ST-2-1** | Implement and unit-test Haversine great-circle calculation utility (`src/common/haversine.ts`). | ✅ Done | FR-010, NFR-001 | Sub-millisecond math |
+| **ST-2-2** | Implement Emergency Resource Service & Endpoint (`GET /disasters/:id/resources?radius=&lat=&lng=&type=`). | ✅ Done | FR-009, FR-010, FR-011 | Radius filtering |
+| **ST-2-3** | Implement Cache-Aside Layer (`src/cache/`) with In-Memory LRU cache and configurable TTLs. | ✅ Done | FR-014, NFR-001 | Cache-aside hit/miss |
+| **ST-2-4** | Implement External Social Reports Mock Feed & Normalization Service (`GET /disasters/:id/reports`) with circuit-breaker fallback. | ✅ Done | FR-012, FR-013, FR-014 | Outage tolerance |
 
 ---
 
