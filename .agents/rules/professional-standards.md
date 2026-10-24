@@ -19,3 +19,19 @@
     - Incorrect: `🚀 Server running on port 3000`
 - **Professional Engineering Demeanor**:
   - Maintain rigorous, senior-level software engineering conventions, clean architectures, and disciplined code aesthetics at all times.
+
+## 3. Strict Type Safety & No Magic Strings Policy (Enums & Constants)
+- **Elimination of Raw String Literals**:
+  - Never use loose strings or magic string literals for domain concepts, user roles, permission checks, HTTP header names, status codes, resource categories, or simulated credentials.
+  - Repeating raw strings across controllers, services, middleware, seeds, or tests is strictly prohibited.
+- **Mandatory TypeScript Enums**:
+  - Define and centralize platform enums in `src/common/enums.ts` (e.g., `UserRole`, `HttpHeader`, `DisasterStatus`, `ResourceType`, `ResourceStatus`, `CacheStatus`, `RealtimeEvent`, `SeedApiKey`, `MockAuthToken`).
+  - All layers—controllers, middlewares, routes, services, schemas, and tests—must import and reference these enums directly.
+- **Strongly-Typed Lookups & Type Guards**:
+  - Never perform ad-hoc array inclusion checks against string arrays (e.g., `['ADMIN', 'CONTRIBUTOR'].includes(role)` is prohibited).
+  - Use strongly typed enums (`[UserRole.ADMIN, UserRole.CONTRIBUTOR].includes(user.role)`), enum-backed type guards (`isValidUserRole()`, `toUserRole()`), or immutable `ReadonlyMap` / typed dictionary lookups.
+- **Schema Validation Integration**:
+  - When validating domain inputs with validation libraries (such as Zod), bind directly to enums via `z.nativeEnum(MyEnum)` or type-safe schema transforms instead of loose string arrays (`z.enum(['admin', 'contributor'])`).
+- **HTTP Header Access**:
+  - Use standard header accessor methods (e.g. `req.header(HttpHeader.X_USER_ROLE)`) using `HttpHeader` enum values rather than manual case-sensitivity handling or raw header string index access.
+

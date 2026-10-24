@@ -1,4 +1,6 @@
 import { PrismaClient } from '@prisma/client';
+import { UserRole, SeedApiKey, SeedUserId } from '../src/common/enums';
+import { hashPassword } from '../src/common/security';
 
 const prisma = new PrismaClient();
 
@@ -11,29 +13,39 @@ async function main() {
   await prisma.disaster.deleteMany();
   await prisma.user.deleteMany();
 
-  // 2. Seed Users
-  console.log('[Seed] Seeding Users and Roles...');
+  // 2. Seed Users with Scrypt Hashed Passwords
+  console.log('[Seed] Seeding Users and Roles with password hashes...');
+  const adminPasswordHash = await hashPassword('Admin@123');
+  const contributorPasswordHash = await hashPassword('Contributor@123');
+  const viewerPasswordHash = await hashPassword('Viewer@123');
+
   const adminUser = await prisma.user.create({
     data: {
-      username: 'admin',
-      role: 'ADMIN',
-      apiKey: 'mock_test_admin_key',
+      id: SeedUserId.ADMIN,
+      username: UserRole.ADMIN.toLowerCase(),
+      passwordHash: adminPasswordHash,
+      role: UserRole.ADMIN,
+      apiKey: SeedApiKey.ADMIN,
     },
   });
 
   const contributorUser = await prisma.user.create({
     data: {
-      username: 'contributor',
-      role: 'CONTRIBUTOR',
-      apiKey: 'mock_test_contributor_key',
+      id: SeedUserId.CONTRIBUTOR,
+      username: UserRole.CONTRIBUTOR.toLowerCase(),
+      passwordHash: contributorPasswordHash,
+      role: UserRole.CONTRIBUTOR,
+      apiKey: SeedApiKey.CONTRIBUTOR,
     },
   });
 
   const viewerUser = await prisma.user.create({
     data: {
-      username: 'viewer',
-      role: 'VIEWER',
-      apiKey: 'mock_test_viewer_key',
+      id: SeedUserId.VIEWER,
+      username: UserRole.VIEWER.toLowerCase(),
+      passwordHash: viewerPasswordHash,
+      role: UserRole.VIEWER,
+      apiKey: SeedApiKey.VIEWER,
     },
   });
 

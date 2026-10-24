@@ -1,12 +1,18 @@
+import http from 'http';
 import { app } from './app';
 import { config } from './config';
 import { logger } from './common/logger';
 import { prisma } from './common/prisma';
+import { initSocketServer } from './realtime/socket';
 
-const server = app.listen(config.port, () => {
+const httpServer = http.createServer(app);
+export const io = initSocketServer(httpServer);
+
+const server = httpServer.listen(config.port, () => {
   logger.info(`[Server] DRCP API Server listening on port ${config.port} [env: ${config.nodeEnv}]`);
   logger.info(`[Server] Health Check available at http://localhost:${config.port}/health`);
   logger.info(`[Server] Disasters API available at http://localhost:${config.port}/api/v1/disasters`);
+  logger.info(`[Server] Real-time updates active at ws://localhost:${config.port}/socket.io/`);
 });
 
 // Graceful shutdown handling

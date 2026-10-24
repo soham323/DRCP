@@ -3,6 +3,8 @@ import { geocodingService } from '../geocoding/geocoding.service';
 import { CreateDisasterInput, UpdateDisasterInput, QueryDisastersInput } from './disaster.schema';
 import { NotFoundError } from '../../common/errors';
 import { logger } from '../../common/logger';
+import { emitDisasterCreated, emitDisasterUpdated, emitDisasterDeleted } from '../../realtime/socket';
+import { DisasterStatus, UserRole } from '../../common/enums';
 
 export class DisasterService {
   /**
@@ -35,9 +37,12 @@ export class DisasterService {
       latitude,
       longitude,
       tags: input.tags || [],
-      status: input.status || 'ACTIVE',
-      createdBy: input.createdBy || 'contributor',
+      status: input.status || DisasterStatus.ACTIVE,
+      createdBy: input.createdBy || UserRole.CONTRIBUTOR.toLowerCase(),
     });
+
+    // Broadcast real-time event to all connected clients
+    emitDisasterCreated(disaster);
 
     return disaster;
   }
@@ -100,6 +105,10 @@ export class DisasterService {
 
     const updated = await disasterRepository.update(id, updatePayload);
     logger.info(`[DisasterService] Updated disaster: ${id}`);
+
+    // Broadcast real-time update event
+    emitDisasterUpdated(updated);
+
     return updated;
   }
 
@@ -111,6 +120,9 @@ export class DisasterService {
     await this.getById(id);
     await disasterRepository.delete(id);
     logger.info(`[DisasterService] Deleted disaster: ${id}`);
+
+    // Broadcast real-time deletion event
+    emitDisasterDeleted(id);
   }
 }
 

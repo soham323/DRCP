@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import disasterRoutes from './modules/disasters/disaster.routes';
 import resourceRoutes from './modules/resources/resource.routes';
+import authRoutes from './modules/auth/auth.routes';
 import { errorHandler } from './middleware/error.middleware';
 import { NotFoundError } from './common/errors';
 
@@ -25,6 +26,9 @@ export function createApp(): Application {
   });
 
   // 3. API Domain Routes (Supporting both standard /api/v1 and root shortcuts)
+  app.use('/api/v1/auth', authRoutes);
+  app.use('/auth', authRoutes);
+
   app.use('/api/v1/disasters', disasterRoutes);
   app.use('/disasters', disasterRoutes);
 
