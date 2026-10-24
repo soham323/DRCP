@@ -3,26 +3,30 @@
 
 | Field         | Value                                                  |
 | :------------ | :----------------------------------------------------- |
-| **Version**   | 1.6.0                                                  |
+| **Version**   | 1.9.0                                                  |
 | **Status**    | Active                                                 |
 | **Owner**     | Soham Khare                                            |
 | **Created**   | 2026-10-23 16:35 IST                                   |
-| **Updated**   | 2026-10-24 02:20 IST                                   |
+| **Updated**   | 2026-10-24 11:25 IST                                   |
 | **Project**   | Disaster Response Coordination Platform (DRCP)         |
 
 ---
 
 ## Update History
 
-| Version | Date & Time          | Summary of Changes                                                      |
-| :------ | :------------------- | :---------------------------------------------------------------------- |
-| 1.6.0   | 2026-10-24 02:20 IST | Completed Stage 2: ST-2-1, ST-2-2, ST-2-3, ST-2-4 all Done.            |
-| 1.5.0   | 2026-10-24 02:16 IST | Commenced Stage 2; marked ST-2-1 through ST-2-4 In Progress.            |
-| 1.4.0   | 2026-10-23 22:53 IST | Completed Stage 1: ST-1-1, ST-1-2, ST-1-3, ST-1-4 all Done.            |
-| 1.3.0   | 2026-10-23 22:50 IST | Commenced Stage 1; marked ST-1-1 through ST-1-4 In Progress.            |
-| 1.2.0   | 2026-10-23 16:56 IST | Completed Stage 0: ST-0-1, ST-0-2, ST-0-3, ST-0-4 all Done.            |
-| 1.1.0   | 2026-10-23 16:53 IST | Commenced Stage 0; marked ST-0-1 In Progress.                           |
-| 1.0.0   | 2026-10-23 16:35 IST | Initial STAGES.md created with 7 stages (Stage 0 - Stage 6) and 24 tasks.|
+| Version | Date & Time          | Summary of Changes                                                                          |
+| :------ | :------------------- | :------------------------------------------------------------------------------------------ |
+| 1.9.0   | 2026-10-24 11:25 IST | Password Authentication & Database RBAC: Implemented password hashing (scrypt+salt), system-assigned roles, DB identity checks, removed client self-claiming headers, updated Postman collection, enforced zero-emoji standard. |
+| 1.8.1   | 2026-10-24 10:46 IST | Type-Safety Hardening: Replaced raw string literals with TypeScript Enums across all layers. |
+| 1.8.0   | 2026-10-24 02:48 IST | Completed Stage 3: ST-3-1, ST-3-2, ST-3-3 all Done. Real-time Socket.io & RBAC verified.    |
+| 1.7.0   | 2026-10-24 02:40 IST | Commenced Stage 3; marked ST-3-1, ST-3-2, ST-3-3 In Progress.                               |
+| 1.6.0   | 2026-10-24 02:20 IST | Completed Stage 2: ST-2-1, ST-2-2, ST-2-3, ST-2-4 all Done.                                |
+| 1.5.0   | 2026-10-24 02:16 IST | Commenced Stage 2; marked ST-2-1 through ST-2-4 In Progress.                                |
+| 1.4.0   | 2026-10-23 22:53 IST | Completed Stage 1: ST-1-1, ST-1-2, ST-1-3, ST-1-4 all Done.                                |
+| 1.3.0   | 2026-10-23 22:50 IST | Commenced Stage 1; marked ST-1-1 through ST-1-4 In Progress.                                |
+| 1.2.0   | 2026-10-23 16:56 IST | Completed Stage 0: ST-0-1, ST-0-2, ST-0-3, ST-0-4 all Done.                                |
+| 1.1.0   | 2026-10-23 16:53 IST | Commenced Stage 0; marked ST-0-1 In Progress.                                               |
+| 1.0.0   | 2026-10-23 16:35 IST | Initial STAGES.md created with 7 stages (Stage 0 - Stage 6) and 24 tasks.                    |
 
 ---
 
@@ -31,11 +35,11 @@
 | Metric         | Count |
 | :------------- | :---- |
 | Total Tasks    | 24    |
-| ✅ Done        | 12    |
-| 🟡 In Progress | 0     |
-| 🔵 Testing     | 0     |
-| 🔴 Blocked     | 0     |
-| ⬜ To Do       | 12    |
+| Done           | 15    |
+| In Progress    | 0     |
+| Testing        | 0     |
+| Blocked        | 0     |
+| To Do          | 9     |
 
 ---
 
@@ -48,10 +52,10 @@
 
 | Task ID | Task Description | Status | Related FRs / NFRs | Notes |
 | :--- | :--- | :--- | :--- | :--- |
-| **ST-0-1** | Initialize Node.js TypeScript project, dependencies (Express, Socket.io, Prisma, Zod, Vitest, Supertest), and tsconfig. | ✅ Done | NFR-002, NFR-005 | Root setup complete |
-| **ST-0-2** | Configure `prisma/schema.prisma` (Disaster, EmergencyResource, CommunityReport, User) and generate client. | ✅ Done | FR-001, FR-009, FR-012 | SQLite dev.db created |
-| **ST-0-3** | Implement structured configuration loader (`src/config/`), RFC 7807 error classes, and global error handling middleware. | ✅ Done | FR-006, NFR-004 | Error safety ready |
-| **ST-0-4** | Create comprehensive database seed script (`prisma/seed.ts`) with realistic disasters and resources (Manhattan & global). | ✅ Done | FR-009, NFR-002 | Seed verified |
+| **ST-0-1** | Initialize Node.js TypeScript project, dependencies (Express, Socket.io, Prisma, Zod, Vitest, Supertest), and tsconfig. | Done | NFR-002, NFR-005 | Root setup complete |
+| **ST-0-2** | Configure `prisma/schema.prisma` (Disaster, EmergencyResource, CommunityReport, User) and generate client. | Done | FR-001, FR-009, FR-012 | SQLite dev.db created |
+| **ST-0-3** | Implement structured configuration loader (`src/config/`), RFC 7807 error classes, and global error handling middleware. | Done | FR-006, NFR-004 | Error safety ready |
+| **ST-0-4** | Create comprehensive database seed script (`prisma/seed.ts`) with realistic disasters and resources (Manhattan & global). | Done | FR-009, NFR-002 | Seed verified |
 
 ---
 
@@ -62,10 +66,10 @@
 
 | Task ID | Task Description | Status | Related FRs / NFRs | Notes |
 | :--- | :--- | :--- | :--- | :--- |
-| **ST-1-1** | Implement Disaster Repository & Service Layer (`src/modules/disasters/`). | ✅ Done | FR-001, FR-002, FR-003 | Clean data access |
-| **ST-1-2** | Build NLP Location Extractor & Geocoding Service with Nominatim integration and resilient coordinate hub fallback. | ✅ Done | FR-007, FR-008, NFR-003 | No API key needed |
-| **ST-1-3** | Implement Disaster Controller (`POST`, `GET /:id`, `PATCH /:id`, `DELETE /:id`) with Zod request validation. | ✅ Done | FR-001, FR-003, FR-004, FR-006 | Strict validation |
-| **ST-1-4** | Add filtering query parameters (`GET /disasters?tag=&status=&limit=&offset=`). | ✅ Done | FR-002 | Tag & status filters |
+| **ST-1-1** | Implement Disaster Repository & Service Layer (`src/modules/disasters/`). | Done | FR-001, FR-002, FR-003 | Clean data access |
+| **ST-1-2** | Build NLP Location Extractor & Geocoding Service with Nominatim integration and resilient coordinate hub fallback. | Done | FR-007, FR-008, NFR-003 | No API key needed |
+| **ST-1-3** | Implement Disaster Controller (`POST`, `GET /:id`, `PATCH /:id`, `DELETE /:id`) with Zod request validation. | Done | FR-001, FR-003, FR-004, FR-006 | Strict validation |
+| **ST-1-4** | Add filtering query parameters (`GET /disasters?tag=&status=&limit=&offset=`). | Done | FR-002 | Tag & status filters |
 
 ---
 
@@ -76,10 +80,10 @@
 
 | Task ID | Task Description | Status | Related FRs / NFRs | Notes |
 | :--- | :--- | :--- | :--- | :--- |
-| **ST-2-1** | Implement and unit-test Haversine great-circle calculation utility (`src/common/haversine.ts`). | ✅ Done | FR-010, NFR-001 | Sub-millisecond math |
-| **ST-2-2** | Implement Emergency Resource Service & Endpoint (`GET /disasters/:id/resources?radius=&lat=&lng=&type=`). | ✅ Done | FR-009, FR-010, FR-011 | Radius filtering |
-| **ST-2-3** | Implement Cache-Aside Layer (`src/cache/`) with In-Memory LRU cache and configurable TTLs. | ✅ Done | FR-014, NFR-001 | Cache-aside hit/miss |
-| **ST-2-4** | Implement External Social Reports Mock Feed & Normalization Service (`GET /disasters/:id/reports`) with circuit-breaker fallback. | ✅ Done | FR-012, FR-013, FR-014 | Outage tolerance |
+| **ST-2-1** | Implement and unit-test Haversine great-circle calculation utility (`src/common/haversine.ts`). | Done | FR-010, NFR-001 | Sub-millisecond math |
+| **ST-2-2** | Implement Emergency Resource Service & Endpoint (`GET /disasters/:id/resources?radius=&lat=&lng=&type=`). | Done | FR-009, FR-010, FR-011 | Radius filtering |
+| **ST-2-3** | Implement Cache-Aside Layer (`src/cache/`) with In-Memory LRU cache and configurable TTLs. | Done | FR-014, NFR-001 | Cache-aside hit/miss |
+| **ST-2-4** | Implement External Social Reports Mock Feed & Normalization Service (`GET /disasters/:id/reports`) with circuit-breaker fallback. | Done | FR-012, FR-013, FR-014 | Outage tolerance |
 
 ---
 
@@ -90,9 +94,9 @@
 
 | Task ID | Task Description | Status | Related FRs / NFRs | Notes |
 | :--- | :--- | :--- | :--- | :--- |
-| **ST-3-1** | Setup Socket.io server engine (`src/realtime/socket.ts`) and broadcast `disaster_created` and `disaster_updated` events. | ⬜ To Do | FR-015 | Real-time push |
-| **ST-3-2** | Build Authentication & RBAC Middleware supporting Bearer tokens and `x-user-role` headers (`admin`, `contributor`, `viewer`). | ⬜ To Do | FR-016, FR-017 | Mock / JWT auth |
-| **ST-3-3** | Enforce RBAC permissions: protect mutations, restrict `DELETE` to `admin`, allow public read-only access. | ⬜ To Do | FR-005, FR-017 | Security enforcement |
+| **ST-3-1** | Setup Socket.io server engine (`src/realtime/socket.ts`) and broadcast `disaster_created` and `disaster_updated` events. | Done | FR-015 | Real-time push |
+| **ST-3-2** | Build Authentication & RBAC Service with database password hashing (scrypt+salt), system-enforced roles, and JWT/API-key validation. | Done | FR-016, FR-017 | Password & DB RBAC |
+| **ST-3-3** | Enforce RBAC permissions: protect mutations, restrict `DELETE` to `ADMIN`, allow public read-only access. | Done | FR-005, FR-017 | Security enforcement |
 
 ---
 
@@ -103,10 +107,10 @@
 
 | Task ID | Task Description | Status | Related FRs / NFRs | Notes |
 | :--- | :--- | :--- | :--- | :--- |
-| **ST-4-1** | Write integration tests for Disaster CRUD and schema validation error scenarios (`tests/disaster.test.ts`). | ⬜ To Do | TS-001, TS-002 | 400 Bad Request check |
-| **ST-4-2** | Write unit and integration tests for Geospatial Haversine radius calculations (`tests/geospatial.test.ts`). | ⬜ To Do | TS-004 | 5km vs 25km radius |
-| **ST-4-3** | Write security tests for RBAC rules: `admin` vs `contributor` vs `viewer` (`tests/auth.test.ts`). | ⬜ To Do | TS-003 | 403 Forbidden check |
-| **ST-4-4** | Write caching and resilience tests: verify `X-Cache: MISS` $\rightarrow$ `X-Cache: HIT` and simulated outage fallback (`tests/caching.test.ts`). | ⬜ To Do | TS-005, TS-006 | Cache hit & fallback |
+| **ST-4-1** | Write integration tests for Disaster CRUD and schema validation error scenarios (`tests/disaster.test.ts`). | To Do | TS-001, TS-002 | 400 Bad Request check |
+| **ST-4-2** | Write unit and integration tests for Geospatial Haversine radius calculations (`tests/geospatial.test.ts`). | To Do | TS-004 | 5km vs 25km radius |
+| **ST-4-3** | Write security tests for RBAC rules: `admin` vs `contributor` vs `viewer` (`tests/auth.test.ts`). | To Do | TS-003 | 403 Forbidden check |
+| **ST-4-4** | Write caching and resilience tests: verify `X-Cache: MISS` -> `X-Cache: HIT` and simulated outage fallback (`tests/caching.test.ts`). | To Do | TS-005, TS-006 | Cache hit & fallback |
 
 ---
 
@@ -117,9 +121,9 @@
 
 | Task ID | Task Description | Status | Related FRs / NFRs | Notes |
 | :--- | :--- | :--- | :--- | :--- |
-| **ST-5-1** | Scaffold lightweight React 18 + Vite dashboard with responsive mobile-first styling in `client/`. | ⬜ To Do | NFR-002 | Clean UI framework |
-| **ST-5-2** | Integrate Leaflet.js interactive map displaying disaster pins, resource markers, and radius circles. | ⬜ To Do | FR-010 | Visual geospatial map |
-| **ST-5-3** | Connect live Socket.io real-time alert ticker and disaster reporting form to demonstrate live events. | ⬜ To Do | FR-015 | End-to-end demo |
+| **ST-5-1** | Scaffold lightweight React 18 + Vite dashboard with responsive mobile-first styling in `client/`. | To Do | NFR-002 | Clean UI framework |
+| **ST-5-2** | Integrate Leaflet.js interactive map displaying disaster pins, resource markers, and radius circles. | To Do | FR-010 | Visual geospatial map |
+| **ST-5-3** | Connect live Socket.io real-time alert ticker and disaster reporting form to demonstrate live events. | To Do | FR-015 | End-to-end demo |
 
 ---
 
@@ -130,10 +134,10 @@
 
 | Task ID | Task Description | Status | Related FRs / NFRs | Notes |
 | :--- | :--- | :--- | :--- | :--- |
-| **ST-6-1** | Write comprehensive `README.md` (Setup, Architecture, DB Rationale, Geospatial explanation, Caching strategy, Trade-offs). | ⬜ To Do | NFR-002, NFR-005 | Core deliverable |
-| **ST-6-2** | Document AI-assisted development disclosure section detailing tools used, manual modifications, and validation. | ⬜ To Do | NFR-005 | Required disclosure |
-| **ST-6-3** | Export Postman API Collection / OpenAPI specification and verify `.env.example` completeness. | ⬜ To Do | NFR-002 | API docs |
-| **ST-6-4** | Perform clean-clone sanity check: test `npm install`, `npm run seed`, `npm test`, and `npm run dev`. | ⬜ To Do | NFR-002 | Zero-friction verify |
+| **ST-6-1** | Write comprehensive `README.md` (Setup, Architecture, DB Rationale, Geospatial explanation, Caching strategy, Trade-offs). | To Do | NFR-002, NFR-005 | Core deliverable |
+| **ST-6-2** | Document AI-assisted development disclosure section detailing tools used, manual modifications, and validation. | To Do | NFR-005 | Required disclosure |
+| **ST-6-3** | Export Postman API Collection / OpenAPI specification and verify `.env.example` completeness. | To Do | NFR-002 | API docs |
+| **ST-6-4** | Perform clean-clone sanity check: test `npm install`, `npm run seed`, `npm test`, and `npm run dev`. | To Do | NFR-002 | Zero-friction verify |
 
 ---
 

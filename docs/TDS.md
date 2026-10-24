@@ -3,12 +3,12 @@
 
 | Field         | Value                                                  |
 | :------------ | :----------------------------------------------------- |
-| **Version**   | 1.0.1                                                  |
+| **Version**   | 1.1.0                                                  |
 | **Status**    | Approved for Implementation                            |
 | **Owner**     | Soham Khare                                            |
 | **Created**   | 2026-10-23 16:30 IST                                   |
-| **Updated**   | 2026-10-23 16:42 IST                                   |
-| **TRD Ref**   | TRD v1.0.1                                             |
+| **Updated**   | 2026-10-24 11:45 IST                                   |
+| **TRD Ref**   | TRD v1.1.0                                             |
 | **Project**   | Disaster Response Coordination Platform (DRCP)         |
 
 ---
@@ -17,6 +17,7 @@
 
 | Version | Date & Time          | Summary of Changes                                                      |
 | :------ | :------------------- | :---------------------------------------------------------------------- |
+| 1.1.0   | 2026-10-24 11:45 IST | Credentialed Password Authentication & System-Enforced RBAC: Added passwordHash to User DDL, scrypt+salt hashing specification, auth endpoint contracts (login, register, logout, me), and eliminated mock header role self-claiming. Enforced zero emojis. |
 | 1.0.1   | 2026-10-23 16:42 IST | Updated project root path references from Dissaster to DRCP.            |
 | 1.0.0   | 2026-10-23 16:30 IST | Initial complete TDS created from TRD v1.0.1 covering all 15 sections.  |
 
@@ -54,7 +55,7 @@ This Technical Design Specification (TDS) defines the exact implementation archi
 │ Node.js + Express (TypeScript)                                         │
 │ - Security Headers (Helmet, CORS)                                      │
 │ - Rate Limiting & Request Throttling                                   │
-│ - RBAC Authentication (JWT Bearer / Mock Headers)                      │
+│ - RBAC Authentication (Cryptographic JWT Bearer / API Key)             │
 │ - Zod Request Validation & RFC 7807 Error Envelope                     │
 └───────────────────────────────────┬────────────────────────────────────┘
                                     │
@@ -279,11 +280,12 @@ model CommunityReport {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  username  String   @unique
-  role      UserRole @default(VIEWER)
-  apiKey    String   @unique @map("api_key")
-  createdAt DateTime @default(now()) @map("created_at")
+  id           String   @id @default(uuid())
+  username     String   @unique
+  passwordHash String   @map("password_hash")
+  role         UserRole @default(VIEWER)
+  apiKey       String?  @unique @map("api_key")
+  createdAt    DateTime @default(now()) @map("created_at")
 
   @@map("users")
 }
@@ -338,20 +340,125 @@ CREATE TABLE community_reports (
 );
 
 CREATE INDEX idx_reports_disaster ON community_reports(disaster_id);
+
+-- Users Table
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    username VARCHAR(100) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    role VARCHAR(50) NOT NULL DEFAULT 'CONTRIBUTOR',
+    api_key VARCHAR(255) UNIQUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_users_username ON users(username);
+CREATE INDEX idx_users_api_key ON users(api_key);
 ```
 
 ---
 
 ## 6. API Contracts & Route Specifications
 
-All endpoints return uniform response shapes. Successful responses wrap payloads in `{ "status": "success", "data": ... }`. Errors follow RFC 7807 structured format `{ "status": "error", "message": "...", "errors": [...] }`.
+All endpoints return uniform response shapes. Successful responses wrap payloads in `{ "status": "success", "data": ... }` or envelope structures. Errors follow RFC 7807 structured format `{ "status": "error", "code": "...", "message": "...", "timestamp": "..." }`.
+
+### 6.0 Authentication & Identity Management
+
+#### `POST /api/v1/auth/login`
+- **Description:** Authenticates user credentials against database-stored password hash (scrypt + salt). System resolves user role from database record and issues a signed JWT Bearer token.
+- **Auth:** Public
+- **Request Body:**
+  ```json
+  {
+    "username": "admin",
+    "password": "Admin@123"
+  }
+  ```
+- **Success Response `200 OK`:**
+  ```json
+  {
+    "status": "success",
+    "message": "Authentication successful",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "tokenType": "Bearer",
+    "user": {
+      "id": "admin-seed-id",
+      "username": "admin",
+      "role": "ADMIN"
+    }
+  }
+  ```
+- **Error Responses:**
+  - `400 Bad Request`: Validation failure (empty username/password).
+  - `401 Unauthorized`: Invalid username or incorrect password.
+
+#### `POST /api/v1/auth/register`
+- **Description:** Creates a new user account with scrypt-hashed password. System policy dictates the role (defaults to `CONTRIBUTOR`); clients cannot self-assign roles.
+- **Auth:** Public
+- **Request Body:**
+  ```json
+  {
+    "username": "field_worker_01",
+    "password": "Password@123"
+  }
+  ```
+- **Success Response `201 Created`:**
+  ```json
+  {
+    "status": "success",
+    "message": "Account registered successfully",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "tokenType": "Bearer",
+    "user": {
+      "id": "8f3b2e1a-...",
+      "username": "field_worker_01",
+      "role": "CONTRIBUTOR"
+    }
+  }
+  ```
+- **Error Responses:**
+  - `409 Conflict`: Username is already taken.
+  - `400 Bad Request`: Password too short (< 6 chars) or username invalid.
+
+#### `POST /api/v1/auth/logout`
+- **Description:** Client session logout endpoint.
+- **Auth:** Optional / Public
+- **Success Response `200 OK`:**
+  ```json
+  {
+    "status": "success",
+    "message": "Logged out successfully. Please remove your authorization token client-side."
+  }
+  ```
+
+#### `GET /api/v1/auth/me`
+- **Description:** Returns the database-verified profile and role of the authenticated caller.
+- **Auth:** Required (`Authorization: Bearer <token>` or `x-api-key: <key>`)
+- **Success Response `200 OK`:**
+  ```json
+  {
+    "status": "success",
+    "data": {
+      "authenticated": true,
+      "user": {
+        "id": "admin-seed-id",
+        "username": "admin",
+        "role": "ADMIN",
+        "createdAt": "2026-10-24T05:00:00.000Z"
+      }
+    }
+  }
+  ```
+- **Error Responses:**
+  - `401 Unauthorized`: Token missing, forged, expired, or invalid API key.
+
+---
 
 ### 6.1 Disaster Incident Management
 
 #### `POST /api/v1/disasters`
 - **Description:** Create a new disaster incident. If coordinates are omitted, automatically resolves location from `description`.
-- **Auth:** Required (`admin` or `contributor`)
-- **Headers:** `Authorization: Bearer <token>` or `x-user-role: contributor`
+- **Auth:** Required (`ADMIN` or `CONTRIBUTOR`)
+- **Headers:** `Authorization: Bearer <token>` or `x-api-key: <key>`
 - **Request Body:**
   ```json
   {
@@ -697,21 +804,39 @@ sequenceDiagram
 
 ## 9. Security Architecture & RBAC
 
-### 9.1 Authentication Mechanism
-* Support both standard `Authorization: Bearer <token>` and quick-switch evaluation header `X-User-Role: <role>` so reviewers can test permissions instantly via Postman or browser without generating JWTs.
-* In production, JWTs are signed with `JWT_SECRET` using HS256 algorithm.
+### 9.1 Authentication & Credential Architecture
+
+1. **Password Hashing:**
+   - Native Node.js `crypto.scrypt` with a cryptographically secure 16-byte random salt generated via `crypto.randomBytes(16)`.
+   - Stored in the database `password_hash` column using the format `<hex_salt>:<hex_hash>`.
+   - Constant-time verification prevents timing attacks.
+
+2. **System-Determined Roles (No Client Self-Claiming):**
+   - User roles are strictly stored in and resolved from the database (`users.role`).
+   - Callers cannot declare or self-assign roles via headers (e.g., `x-user-role`). Unauthenticated requests attempting header claims are rejected with `HTTP 401 Unauthorized`.
+   - New registrations (`POST /api/v1/auth/register`) automatically receive the system-assigned default role `CONTRIBUTOR`.
+
+3. **Session Tokens & API Keys:**
+   - Cryptographically signed JWT tokens (`HS256`, 24h expiration) are minted exclusively upon successful password validation via `POST /api/v1/auth/login`.
+   - The JWT payload embeds the database-verified user identity: `{ "userId": "...", "username": "...", "role": "..." }`.
+   - Machine-to-machine integrations use database-backed API keys passed via `x-api-key`.
+
+4. **Strict Type Safety:**
+   - All roles (`UserRole.ADMIN`, `UserRole.CONTRIBUTOR`, `UserRole.VIEWER`) and header identifiers (`HttpHeader.AUTHORIZATION`, `HttpHeader.X_API_KEY`) are enforced via TypeScript enums.
 
 ### 9.2 Role Permission Matrix
 
-| Endpoint | HTTP Method | `admin` | `contributor` | `viewer` / Public |
+| Endpoint | HTTP Method | ADMIN | CONTRIBUTOR | VIEWER / Public |
 | :--- | :--- | :---: | :---: | :---: |
-| `/api/v1/disasters` | `POST` |  Allowed |  Allowed | ❌ 401 Unauthorized |
-| `/api/v1/disasters` | `GET` |  Allowed |  Allowed |  Allowed |
-| `/api/v1/disasters/:id` | `GET` |  Allowed |  Allowed |  Allowed |
-| `/api/v1/disasters/:id` | `PATCH` |  Allowed |  Allowed | ❌ 401 Unauthorized |
-| `/api/v1/disasters/:id` | `DELETE` |  Allowed | ❌ 403 Forbidden | ❌ 401 Unauthorized |
-| `/api/v1/disasters/:id/resources` | `GET` |  Allowed |  Allowed |  Allowed |
-| `/api/v1/disasters/:id/reports` | `GET` |  Allowed |  Allowed |  Allowed |
+| `/api/v1/disasters` | `POST` | Allowed | Allowed | Unauthorized (401) |
+| `/api/v1/disasters` | `GET` | Allowed | Allowed | Allowed |
+| `/api/v1/disasters/:id` | `GET` | Allowed | Allowed | Allowed |
+| `/api/v1/disasters/:id` | `PATCH` | Allowed | Allowed | Unauthorized (401) |
+| `/api/v1/disasters/:id` | `DELETE` | Allowed | Forbidden (403) | Unauthorized (401) |
+| `/api/v1/disasters/:id/resources` | `GET` | Allowed | Allowed | Allowed |
+| `/api/v1/disasters/:id/reports` | `GET` | Allowed | Allowed | Allowed |
+| `/api/v1/resources` | `POST` | Allowed | Allowed | Unauthorized (401) |
+| `/api/v1/auth/me` | `GET` | Allowed | Allowed | Allowed (if authenticated) |
 
 ---
 

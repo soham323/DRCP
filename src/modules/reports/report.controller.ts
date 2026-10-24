@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { reportService } from './report.service';
 import { DisasterIdParamSchema } from '../disasters/disaster.schema';
 import { config } from '../../config';
+import { HttpHeader, CacheStatus } from '../../common/enums';
 
 export class ReportController {
   /**
@@ -12,9 +13,15 @@ export class ReportController {
       const { id } = DisasterIdParamSchema.parse(req.params);
       const result = await reportService.getReportsForDisaster(id);
 
-      // Set Cache-Aside metadata headers
-      res.setHeader('X-Cache', result.cached ? 'HIT' : result.degraded ? 'DEGRADED' : 'MISS');
-      res.setHeader('X-Cache-TTL', config.reportsCacheTtl.toString());
+      // Set Cache-Aside metadata headers using strongly typed enums
+      const cacheStatus = result.cached
+        ? CacheStatus.HIT
+        : result.degraded
+        ? CacheStatus.DEGRADED
+        : CacheStatus.MISS;
+
+      res.setHeader(HttpHeader.X_CACHE, cacheStatus);
+      res.setHeader(HttpHeader.X_CACHE_TTL, config.reportsCacheTtl.toString());
 
       res.status(200).json({
         status: 'success',

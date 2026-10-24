@@ -1,4 +1,7 @@
 import { z } from 'zod';
+import { DisasterStatus } from '../../common/enums';
+
+export { DisasterStatus };
 
 export const LocationObjectSchema = z.object({
   name: z.string().min(1, 'Location name cannot be empty'),
@@ -17,8 +20,8 @@ export const CreateDisasterSchema = z.object({
     .max(3000, 'Description cannot exceed 3000 characters'),
   location: LocationObjectSchema.optional(),
   tags: z.array(z.string().min(1)).optional().default([]),
-  status: z.enum(['ACTIVE', 'CONTAINED', 'RESOLVED']).optional().default('ACTIVE'),
-  createdBy: z.string().optional().default('contributor'),
+  status: z.nativeEnum(DisasterStatus).optional().default(DisasterStatus.ACTIVE),
+  createdBy: z.string().optional(),
 });
 
 export const UpdateDisasterSchema = z
@@ -27,7 +30,7 @@ export const UpdateDisasterSchema = z
     description: z.string().min(10).max(3000).optional(),
     location: LocationObjectSchema.optional(),
     tags: z.array(z.string().min(1)).optional(),
-    status: z.enum(['ACTIVE', 'CONTAINED', 'RESOLVED']).optional(),
+    status: z.nativeEnum(DisasterStatus).optional(),
   })
   .refine((data) => Object.keys(data).length > 0, {
     message: 'At least one field must be provided to update',
@@ -35,7 +38,7 @@ export const UpdateDisasterSchema = z
 
 export const QueryDisastersSchema = z.object({
   tag: z.string().optional(),
-  status: z.enum(['ACTIVE', 'CONTAINED', 'RESOLVED']).optional(),
+  status: z.nativeEnum(DisasterStatus).optional(),
   limit: z.coerce.number().int().min(1).max(100).optional().default(20),
   offset: z.coerce.number().int().min(0).optional().default(0),
 });

@@ -1,6 +1,7 @@
 import request from 'supertest';
 import { app } from '../src/app';
 import { prisma } from '../src/common/prisma';
+import { HttpHeader, UserRole, DisasterStatus, SeedApiKey } from '../src/common/enums';
 
 async function runStage1Verification() {
   console.log('====================================================');
@@ -32,10 +33,13 @@ async function runStage1Verification() {
     title: 'Severe Flash Flooding Event',
     description: 'Heavy flooding has affected Manhattan, NYC with subway stations submerged under rapidly rising water.',
     tags: ['flood', 'urgent', 'evacuation'],
-    status: 'ACTIVE',
+    status: DisasterStatus.ACTIVE,
   };
 
-  const createGeoRes = await request(app).post('/api/v1/disasters').send(geocodePayload);
+  const createGeoRes = await request(app)
+    .post('/api/v1/disasters')
+    .set(HttpHeader.X_API_KEY, SeedApiKey.ADMIN)
+    .send(geocodePayload);
   assert(createGeoRes.status === 201, 'POST /disasters returns 201 Created');
   assert(
     createGeoRes.body.data.location.name === 'Manhattan, NYC',
@@ -48,7 +52,7 @@ async function runStage1Verification() {
     'Geocoded coordinates resolved to Manhattan coordinates [40.7831, -73.9712]',
     createGeoRes.body.data.location
   );
-  assert(createGeoRes.body.data.status === 'ACTIVE', 'Disaster status defaults to ACTIVE');
+  assert(createGeoRes.body.data.status === DisasterStatus.ACTIVE, 'Disaster status defaults to ACTIVE');
   const createdDisasterId = createGeoRes.body.data.id;
 
   // Test 3: Validation Error Handling (RFC 7807 problem details)
@@ -58,7 +62,10 @@ async function runStage1Verification() {
     description: 'short', // Too short (min 10)
   };
 
-  const invalidRes = await request(app).post('/api/v1/disasters').send(invalidPayload);
+  const invalidRes = await request(app)
+    .post('/api/v1/disasters')
+    .set(HttpHeader.X_API_KEY, SeedApiKey.ADMIN)
+    .send(invalidPayload);
   assert(invalidRes.status === 400, 'Invalid payload returns 400 Bad Request');
   assert(invalidRes.body.code === 'VALIDATION_ERROR', 'Returns code VALIDATION_ERROR');
   assert(
@@ -84,9 +91,9 @@ async function runStage1Verification() {
 
   // Test 6: Status Filtering
   console.log('\n[TEST 6] Testing Status Filtering: GET /api/v1/disasters?status=ACTIVE...');
-  const statusRes = await request(app).get('/api/v1/disasters?status=ACTIVE');
+  const statusRes = await request(app).get(`/api/v1/disasters?status=${DisasterStatus.ACTIVE}`);
   assert(statusRes.status === 200, 'Status filter returns 200 OK');
-  const allActive = statusRes.body.data.every((d: any) => d.status === 'ACTIVE');
+  const allActive = statusRes.body.data.every((d: any) => d.status === DisasterStatus.ACTIVE);
   assert(allActive, 'Every disaster in results has status ACTIVE');
 
   // Test 7: Get Single Disaster by ID
@@ -105,17 +112,20 @@ async function runStage1Verification() {
   console.log('\n[TEST 9] Testing PATCH /api/v1/disasters/:id...');
   const updateRes = await request(app)
     .patch(`/api/v1/disasters/${createdDisasterId}`)
+    .set(HttpHeader.X_API_KEY, SeedApiKey.ADMIN)
     .send({
-      status: 'CONTAINED',
+      status: DisasterStatus.CONTAINED,
       title: 'Updated: Flash Flood Lower Manhattan (Controlled)',
     });
   assert(updateRes.status === 200, 'PATCH returns 200 OK');
-  assert(updateRes.body.data.status === 'CONTAINED', 'Status updated to CONTAINED');
+  assert(updateRes.body.data.status === DisasterStatus.CONTAINED, 'Status updated to CONTAINED');
   assert(updateRes.body.data.title.includes('Updated:'), 'Title updated successfully');
 
   // Test 10: Delete Disaster (DELETE)
   console.log('\n[TEST 10] Testing DELETE /api/v1/disasters/:id...');
-  const deleteRes = await request(app).delete(`/api/v1/disasters/${createdDisasterId}`);
+  const deleteRes = await request(app)
+    .delete(`/api/v1/disasters/${createdDisasterId}`)
+    .set(HttpHeader.X_API_KEY, SeedApiKey.ADMIN);
   assert(deleteRes.status === 204, 'DELETE returns 204 No Content');
 
   // Confirm deletion

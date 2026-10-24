@@ -6,11 +6,13 @@ import {
   QueryDisastersSchema,
   DisasterIdParamSchema,
 } from './disaster.schema';
+import { UserRole } from '../../common/enums';
 
 export class DisasterController {
   public async create(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const validatedInput = CreateDisasterSchema.parse(req.body);
+      validatedInput.createdBy = validatedInput.createdBy || req.user?.username || UserRole.CONTRIBUTOR.toLowerCase();
       const disaster = await disasterService.create(validatedInput);
 
       res.status(201).json({
