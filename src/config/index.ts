@@ -11,6 +11,24 @@ export interface AppConfig {
   reportsCacheTtl: number;
   geoCacheTtl: number;
   externalTimeoutMs: number;
+  auth: {
+    admin: {
+      username: string;
+      password: string;
+      apiKey: string;
+    };
+    contributor: {
+      username: string;
+      password: string;
+      apiKey: string;
+    };
+    viewer: {
+      username: string;
+      password: string;
+      apiKey: string;
+    };
+    testUserPassword: string;
+  };
 }
 
 export const config: AppConfig = {
@@ -23,4 +41,23 @@ export const config: AppConfig = {
   reportsCacheTtl: parseInt(process.env.REPORTS_CACHE_TTL || '120', 10),
   geoCacheTtl: parseInt(process.env.GEO_CACHE_TTL || '86400', 10),
   externalTimeoutMs: parseInt(process.env.EXTERNAL_TIMEOUT_MS || '3000', 10),
+  auth: {
+    admin: {
+      username: process.env.SEED_ADMIN_USERNAME || '',
+      password: process.env.SEED_ADMIN_PASSWORD || '',
+      apiKey: process.env.SEED_ADMIN_API_KEY || '',
+    },
+    contributor: {
+      username: process.env.SEED_CONTRIBUTOR_USERNAME || '',
+      password: process.env.SEED_CONTRIBUTOR_PASSWORD || '',
+      apiKey: process.env.SEED_CONTRIBUTOR_API_KEY || '',
+    },
+    viewer: {
+      username: process.env.SEED_VIEWER_USERNAME || '',
+      password: process.env.SEED_VIEWER_PASSWORD || '',
+      apiKey: process.env.SEED_VIEWER_API_KEY || '',
+    },
+    testUserPassword: process.env.TEST_USER_PASSWORD || '',
+  },
 };
+

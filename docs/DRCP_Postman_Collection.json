@@ -1,0 +1,1237 @@
+{
+  "info": {
+    "_postman_id": "drcp-postman-collection-v3",
+    "name": "Disaster Response Coordination Platform (DRCP) API",
+    "description": "Production Postman Collection for Disaster Response Coordination Platform (DRCP).\nCovers Stages 1, 2, and 3:\n- Authentication & RBAC token issuance and identity verification\n- Disaster incident lifecycle with NLP-based narrative geocoding\n- Real-time Socket.io event emissions\n- Haversine mathematical radius search for emergency assets\n- Cache-Aside architecture for social reports with fallback resilience\n- Automated test scripts that extract tokens, disaster IDs, and assert HTTP status codes and headers.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "disasterId",
+      "value": "fbea8ecf-08e6-4bb8-87f1-9ca6d8e219c2",
+      "type": "string"
+    },
+    {
+      "key": "jwtToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "adminToken",
+      "value": "admin-token",
+      "type": "string"
+    },
+    {
+      "key": "contributorToken",
+      "value": "contributor-token",
+      "type": "string"
+    },
+    {
+      "key": "adminUsername",
+      "value": "admin",
+      "type": "string"
+    },
+    {
+      "key": "adminPassword",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "contributorUsername",
+      "value": "contributor",
+      "type": "string"
+    },
+    {
+      "key": "contributorPassword",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "viewerUsername",
+      "value": "viewer",
+      "type": "string"
+    },
+    {
+      "key": "viewerPassword",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "testUserPassword",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "invalidPassword",
+      "value": "invalid_placeholder_password",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. System Health",
+      "item": [
+        {
+          "name": "Health Check (GET /health)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Service status is ok\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.status).to.eql(\"ok\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Verifies server runtime status, uptime, and service health."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. Authentication & Identity (Stage 3)",
+      "item": [
+        {
+          "name": "Admin Login (POST /auth/login)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.test(\"System verifies role from database as ADMIN\", function () {",
+                  "    pm.expect(json.user.role).to.eql(\"ADMIN\");",
+                  "});",
+                  "if (json.token) {",
+                  "    pm.collectionVariables.set(\"jwtToken\", json.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{adminUsername}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            },
+            "description": "Authenticates admin credentials against database password hash. Extracts system-assigned ADMIN role and saves JWT token to {{jwtToken}}."
+          },
+          "response": []
+        },
+        {
+          "name": "Contributor Login (POST /auth/login)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.test(\"System verifies role from database as CONTRIBUTOR\", function () {",
+                  "    pm.expect(json.user.role).to.eql(\"CONTRIBUTOR\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{contributorUsername}}\",\n  \"password\": \"{{contributorPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            },
+            "description": "Authenticates contributor credentials. Role is strictly assigned by database, not request headers."
+          },
+          "response": []
+        },
+        {
+          "name": "Viewer Login (POST /auth/login)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.test(\"System verifies role from database as VIEWER\", function () {",
+                  "    pm.expect(json.user.role).to.eql(\"VIEWER\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{viewerUsername}}\",\n  \"password\": \"{{viewerPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            },
+            "description": "Authenticates viewer credentials. Read-only permissions enforced by RBAC."
+          },
+          "response": []
+        },
+        {
+          "name": "Register New User (POST /auth/register)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 Created\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.test(\"Role is automatically assigned by system policy as CONTRIBUTOR\", function () {",
+                  "    pm.expect(json.user.role).to.eql(\"CONTRIBUTOR\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"field_agent_new\",\n  \"password\": \"{{testUserPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "register"]
+            },
+            "description": "Registers a new user account. Role is strictly assigned by server policy as CONTRIBUTOR (clients cannot elevate their own role)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Profile via Bearer JWT (GET /auth/me)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.test(\"Authenticated is true\", function () {",
+                  "    pm.expect(json.data.authenticated).to.be.true;",
+                  "});",
+                  "pm.test(\"Database verified identity returned\", function () {",
+                  "    pm.expect(json.data.user.role).to.eql(\"ADMIN\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}",
+                "description": "Cryptographically signed JWT Bearer token"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "me"]
+            },
+            "description": "Verifies caller identity using the cryptographic JWT Bearer token."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Profile via X-API-Key (GET /auth/me)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.test(\"API key verified against database\", function () {",
+                  "    pm.expect(json.data.user.role).to.eql(\"ADMIN\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "mock_test_admin_key",
+                "description": "Database-backed API key for machine-to-machine integration"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "me"]
+            },
+            "description": "Verifies caller identity using database-verified API key."
+          },
+          "response": []
+        },
+        {
+          "name": "Invalid Password Rejection (Expect 401 Unauthorized)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 401 Unauthorized\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.test(\"Error code is UNAUTHORIZED\", function () {",
+                  "    pm.expect(json.code).to.eql(\"UNAUTHORIZED\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{adminUsername}}\",\n  \"password\": \"{{invalidPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            },
+            "description": "Verifies that incorrect passwords are rejected with HTTP 401."
+          },
+          "response": []
+        },
+        {
+          "name": "Forged Header Rejection Without Token (Expect 401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 401 Unauthorized\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-user-role",
+                "value": "admin",
+                "description": "Attempting to self-claim admin role without authentication"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "me"]
+            },
+            "description": "Demonstrates security policy: self-claimed role headers are ignored and caller is rejected with HTTP 401."
+          },
+          "response": []
+        },
+        {
+          "name": "User Logout (POST /auth/logout)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "logout"]
+            },
+            "description": "Logs out current user session."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. Disaster Incident Management",
+      "item": [
+        {
+          "name": "Create Disaster (NLP Auto-Geocoding from Description)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 Created\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.test(\"NLP extracted Manhattan location\", function () {",
+                  "    pm.expect(json.data.location.name).to.eql(\"Manhattan, NYC\");",
+                  "    pm.expect(json.data.location.latitude).to.eql(40.7831);",
+                  "    pm.expect(json.data.location.longitude).to.eql(-73.9712);",
+                  "});",
+                  "if (json.data && json.data.id) {",
+                  "    pm.collectionVariables.set(\"disasterId\", json.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-user-role",
+                "value": "contributor",
+                "description": "RBAC: ADMIN or CONTRIBUTOR permitted"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Flash Flooding in Lower Manhattan\",\n  \"description\": \"Heavy flooding has affected Manhattan, NYC with subway stations and major avenues submerged under rapid rising water.\",\n  \"tags\": [\"flood\", \"urgent\", \"evacuation\"],\n  \"status\": \"ACTIVE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/disasters",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "disasters"]
+            },
+            "description": "Creates a disaster incident. Location is omitted from body; the system automatically extracts 'Manhattan, NYC' from the text and resolves coordinates. Triggers Socket.io disaster_created event. Saves ID to {{disasterId}}."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Disaster (Explicit Coordinates)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 Created\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-user-role",
+                "value": "contributor"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Monsoon Downpour in Mumbai\",\n  \"description\": \"Severe waterlogging across western railway tracks in Dadar, Mumbai.\",\n  \"location\": {\n    \"name\": \"Mumbai, Maharashtra\",\n    \"latitude\": 19.0760,\n    \"longitude\": 72.8777\n  },\n  \"tags\": [\"flood\", \"monsoon\"],\n  \"status\": \"ACTIVE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/disasters",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "disasters"]
+            },
+            "description": "Creates a disaster incident with explicit user-supplied coordinates. Triggers Socket.io disaster_created event."
+          },
+          "response": []
+        },
+        {
+          "name": "List All Disasters (Paginated - Public)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.test(\"Returns array of items\", function () {",
+                  "    pm.expect(Array.isArray(json.data)).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/disasters?limit=10&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "disasters"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Public endpoint. Retrieves paginated list of disasters ordered by creation date descending."
+          },
+          "response": []
+        },
+        {
+          "name": "Filter Disasters by Tag (Public)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/disasters?tag=flood",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "disasters"],
+              "query": [
+                {
+                  "key": "tag",
+                  "value": "flood"
+                }
+              ]
+            },
+            "description": "Public endpoint. Filters disasters by matching tag substring."
+          },
+          "response": []
+        },
+        {
+          "name": "Filter Disasters by Status (Public)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/disasters?status=ACTIVE",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "disasters"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "ACTIVE"
+                }
+              ]
+            },
+            "description": "Public endpoint. Filters disasters by lifecycle status (ACTIVE, CONTAINED, RESOLVED)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Disaster by ID (Public)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/disasters/{{disasterId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "disasters", "{{disasterId}}"]
+            },
+            "description": "Public endpoint. Retrieves single disaster entity by UUID."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Disaster (PATCH)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.test(\"Status updated to CONTAINED\", function () {",
+                  "    pm.expect(json.data.status).to.eql(\"CONTAINED\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-user-role",
+                "value": "contributor",
+                "description": "RBAC: ADMIN or CONTRIBUTOR permitted"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"CONTAINED\",\n  \"title\": \"Controlled: Flash Flooding in Lower Manhattan\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/disasters/{{disasterId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "disasters", "{{disasterId}}"]
+            },
+            "description": "Partially updates an existing disaster. Broadcasts disaster_updated event via Socket.io."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Disaster as Contributor (RBAC 403 Forbidden)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 403 Forbidden\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.test(\"Code is FORBIDDEN\", function () {",
+                  "    pm.expect(json.code).to.eql(\"FORBIDDEN\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "x-user-role",
+                "value": "contributor",
+                "description": "Contributor lacks deletion rights"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/disasters/{{disasterId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "disasters", "{{disasterId}}"]
+            },
+            "description": "Demonstrates RBAC rejection: contributors cannot delete incidents (returns 403 Forbidden)."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Disaster as Admin (DELETE 204)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 204 No Content\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "x-user-role",
+                "value": "admin",
+                "description": "Strictly ADMIN role required for deletion"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/disasters/{{disasterId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "disasters", "{{disasterId}}"]
+            },
+            "description": "Deletes a disaster incident by UUID. Strictly restricted to ADMIN role. Returns 204 No Content."
+          },
+          "response": []
+        },
+        {
+          "name": "Unauthenticated Mutation (Expect 401 Unauthorized)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 401 Unauthorized\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Unauthenticated Disaster Incident\",\n  \"description\": \"Incident without credentials must be rejected.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/disasters",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "disasters"]
+            },
+            "description": "Verifies that mutating endpoints reject calls lacking authentication."
+          },
+          "response": []
+        },
+        {
+          "name": "Validation Error Scenario (Invalid Body - 400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.test(\"Validation errors array returned\", function () {",
+                  "    pm.expect(Array.isArray(json.errors)).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-user-role",
+                "value": "admin"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"A\",\n  \"description\": \"short\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/disasters",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "disasters"]
+            },
+            "description": "Intentionally malformed payload to verify RFC 7807 structured validation error handling (400 Bad Request)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "4. Geospatial & Nearby Resources",
+      "item": [
+        {
+          "name": "Find Nearby Resources (Radius 5 km)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.test(\"Calculated radius is 5 km\", function () {",
+                  "    pm.expect(json.origin.radius_km).to.eql(5);",
+                  "});",
+                  "pm.test(\"Every resource distance is within 5 km\", function () {",
+                  "    json.data.forEach(function (r) {",
+                  "        pm.expect(r.distance_km).to.be.at.most(5);",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/disasters/{{disasterId}}/resources?radius=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "disasters", "{{disasterId}}", "resources"],
+              "query": [
+                {
+                  "key": "radius",
+                  "value": "5"
+                }
+              ]
+            },
+            "description": "Finds emergency relief resources within a 5 km spherical radius from the disaster location. Returns assets sorted nearest-first with computed distance_km."
+          },
+          "response": []
+        },
+        {
+          "name": "Find Nearby Resources (Expanded Radius 20 km)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/disasters/{{disasterId}}/resources?radius=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "disasters", "{{disasterId}}", "resources"],
+              "query": [
+                {
+                  "key": "radius",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Queries an expanded 20 km radius to include regional assets (Brooklyn, Queens, Jersey City)."
+          },
+          "response": []
+        },
+        {
+          "name": "Filter Nearby Resources by Type (Hospitals Only)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.test(\"All returned resources have type HOSPITAL\", function () {",
+                  "    json.data.forEach(function (r) {",
+                  "        pm.expect(r.type).to.eql(\"HOSPITAL\");",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/disasters/{{disasterId}}/resources?radius=15&type=HOSPITAL",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "disasters", "{{disasterId}}", "resources"],
+              "query": [
+                {
+                  "key": "radius",
+                  "value": "15"
+                },
+                {
+                  "key": "type",
+                  "value": "HOSPITAL"
+                }
+              ]
+            },
+            "description": "Filters nearby resources strictly to emergency hospitals within 15 km."
+          },
+          "response": []
+        },
+        {
+          "name": "Filter Nearby Resources by Type (Water Only)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.test(\"All returned resources have type WATER\", function () {",
+                  "    json.data.forEach(function (r) {",
+                  "        pm.expect(r.type).to.eql(\"WATER\");",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/disasters/{{disasterId}}/resources?radius=25&type=WATER",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "disasters", "{{disasterId}}", "resources"],
+              "query": [
+                {
+                  "key": "radius",
+                  "value": "25"
+                },
+                {
+                  "key": "type",
+                  "value": "WATER"
+                }
+              ]
+            },
+            "description": "Filters nearby resources strictly to clean water distribution points within 25 km."
+          },
+          "response": []
+        },
+        {
+          "name": "Find Resources Around Custom Origin Coordinates",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/disasters/{{disasterId}}/resources?lat=40.7128&lng=-74.0060&radius=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "disasters", "{{disasterId}}", "resources"],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "40.7128"
+                },
+                {
+                  "key": "lng",
+                  "value": "-74.0060"
+                },
+                {
+                  "key": "radius",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Overrides disaster coordinates with custom search origin (lat, lng)."
+          },
+          "response": []
+        },
+        {
+          "name": "List All Registered Resources (Public)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/resources",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "resources"]
+            },
+            "description": "Lists all registered emergency relief resources."
+          },
+          "response": []
+        },
+        {
+          "name": "Register New Emergency Resource (Protected)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 Created\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-user-role",
+                "value": "contributor",
+                "description": "RBAC: ADMIN or CONTRIBUTOR permitted"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Battery Park Mobile Medical Station\",\n  \"type\": \"HOSPITAL\",\n  \"location\": {\n    \"name\": \"Battery Park, Lower Manhattan\",\n    \"latitude\": 40.7033,\n    \"longitude\": -74.0170\n  },\n  \"capacity\": 80,\n  \"status\": \"AVAILABLE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/resources",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "resources"]
+            },
+            "description": "Registers a new emergency relief asset into the catalog."
+          },
+          "response": []
+        },
+        {
+          "name": "Unauthenticated Resource Creation (Expect 401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 401 Unauthorized\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Unauthenticated Shelter\",\n  \"type\": \"SHELTER\",\n  \"location\": {\n    \"name\": \"Queens Outpost\",\n    \"latitude\": 40.7282,\n    \"longitude\": -73.7949\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/resources",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "resources"]
+            },
+            "description": "Verifies that resource creation without auth credentials is rejected with 401."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "5. Community Reports & Cache-Aside",
+      "item": [
+        {
+          "name": "Get Community Reports (Cache-Aside)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Has X-Cache header\", function () {",
+                  "    pm.response.to.have.header(\"X-Cache\");",
+                  "});",
+                  "var xCache = pm.response.headers.get(\"X-Cache\");",
+                  "pm.test(\"X-Cache header is HIT, MISS, or DEGRADED\", function () {",
+                  "    pm.expect([\"HIT\", \"MISS\", \"DEGRADED\"]).to.include(xCache);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/disasters/{{disasterId}}/reports",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "disasters", "{{disasterId}}", "reports"]
+            },
+            "description": "Retrieves normalized community reports for a disaster.\n- Call 1: Triggers Cache Miss (X-Cache: MISS header), queries external social provider, normalizes feed, and caches with TTL 120s.\n- Call 2: Returns instantly from Cache (X-Cache: HIT header)."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

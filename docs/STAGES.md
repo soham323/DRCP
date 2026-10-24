@@ -3,11 +3,11 @@
 
 | Field         | Value                                                  |
 | :------------ | :----------------------------------------------------- |
-| **Version**   | 1.9.0                                                  |
+| **Version**   | 1.12.0                                                 |
 | **Status**    | Active                                                 |
 | **Owner**     | Soham Khare                                            |
 | **Created**   | 2026-10-23 16:35 IST                                   |
-| **Updated**   | 2026-10-24 11:25 IST                                   |
+| **Updated**   | 2026-10-24 13:30 IST                                   |
 | **Project**   | Disaster Response Coordination Platform (DRCP)         |
 
 ---
@@ -16,6 +16,9 @@
 
 | Version | Date & Time          | Summary of Changes                                                                          |
 | :------ | :------------------- | :------------------------------------------------------------------------------------------ |
+| 1.12.0  | 2026-10-24 13:30 IST | Environment Credential Hardening: Eliminated all hardcoded passwords, usernames, and API keys across source code, tests, seed scripts, and documentation. All credentials now strictly sourced via `config.auth.*` and `.env`. Updated Postman collection variables and verified all test suites pass. |
+| 1.11.0  | 2026-10-24 12:24 IST | Completed Stage 4: ST-4-1, ST-4-2, ST-4-3, ST-4-4 all Done. Configured vitest.config.ts, implemented 4 automated test suites (58 tests) validating auth, disaster CRUD, geospatial math, and caching resilience. |
+| 1.10.0  | 2026-10-24 12:17 IST | Commenced Stage 4: Updated tasks ST-4-1 through ST-4-4 to In Progress with detailed specifications for password auth, system RBAC, Haversine math, and circuit breaker resilience. |
 | 1.9.0   | 2026-10-24 11:25 IST | Password Authentication & Database RBAC: Implemented password hashing (scrypt+salt), system-assigned roles, DB identity checks, removed client self-claiming headers, updated Postman collection, enforced zero-emoji standard. |
 | 1.8.1   | 2026-10-24 10:46 IST | Type-Safety Hardening: Replaced raw string literals with TypeScript Enums across all layers. |
 | 1.8.0   | 2026-10-24 02:48 IST | Completed Stage 3: ST-3-1, ST-3-2, ST-3-3 all Done. Real-time Socket.io & RBAC verified.    |
@@ -35,11 +38,11 @@
 | Metric         | Count |
 | :------------- | :---- |
 | Total Tasks    | 24    |
-| Done           | 15    |
+| Done           | 19    |
 | In Progress    | 0     |
 | Testing        | 0     |
 | Blocked        | 0     |
-| To Do          | 9     |
+| To Do          | 5     |
 
 ---
 
@@ -107,10 +110,10 @@
 
 | Task ID | Task Description | Status | Related FRs / NFRs | Notes |
 | :--- | :--- | :--- | :--- | :--- |
-| **ST-4-1** | Write integration tests for Disaster CRUD and schema validation error scenarios (`tests/disaster.test.ts`). | To Do | TS-001, TS-002 | 400 Bad Request check |
-| **ST-4-2** | Write unit and integration tests for Geospatial Haversine radius calculations (`tests/geospatial.test.ts`). | To Do | TS-004 | 5km vs 25km radius |
-| **ST-4-3** | Write security tests for RBAC rules: `admin` vs `contributor` vs `viewer` (`tests/auth.test.ts`). | To Do | TS-003 | 403 Forbidden check |
-| **ST-4-4** | Write caching and resilience tests: verify `X-Cache: MISS` -> `X-Cache: HIT` and simulated outage fallback (`tests/caching.test.ts`). | To Do | TS-005, TS-006 | Cache hit & fallback |
+| **ST-4-1** | Write integration tests for Disaster CRUD, NLP geocoding, RFC 7807 validation errors, and token-authenticated mutations (`tests/disaster.test.ts`). | Done | TS-001, TS-002, FR-001, FR-007 | Auth mutations & NLP |
+| **ST-4-2** | Write unit and integration tests for Geospatial Haversine radius calculations, proximity sorting, and emergency resource management (`tests/geospatial.test.ts`). | Done | TS-004, FR-009, FR-010 | 3km vs 20km & sorting |
+| **ST-4-3** | Write security tests for credentialed authentication (`login`, `register`, `logout`, `me`), password hashing, forged header rejection, and strict RBAC matrix enforcement (`tests/auth.test.ts`). | Done | TS-003, FR-016, FR-017 | Password & RBAC tests |
+| **ST-4-4** | Write caching and resilience tests: verify Cache-Aside lifecycle (`X-Cache: MISS` -> `X-Cache: HIT`) and simulated outage circuit breaker fallback (`tests/caching.test.ts`). | Done | TS-005, TS-006, FR-012, FR-014 | Cache & circuit breaker |
 
 ---
 
