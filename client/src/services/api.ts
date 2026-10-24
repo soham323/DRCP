@@ -9,7 +9,9 @@ import {
   ResourceType,
 } from '../types/enums';
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const BASE_URL = import.meta.env.VITE_API_URL !== undefined && import.meta.env.VITE_API_URL !== ''
+  ? import.meta.env.VITE_API_URL
+  : (import.meta.env.DEV ? 'http://localhost:3000' : '');
 const TOKEN_KEY = 'drcp_auth_token';
 
 export const tokenStorage = {
@@ -65,10 +67,10 @@ export const api = {
     return res.data;
   },
 
-  async register(username: string, password: string): Promise<{ token: string; user: AuthUser }> {
+  async register(username: string, password: string, role?: UserRole): Promise<{ token: string; user: AuthUser }> {
     const res = await apiRequest<{ token: string; user: AuthUser }>('/api/v1/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ username, password, role }),
     });
     tokenStorage.set(res.data.token);
     return res.data;

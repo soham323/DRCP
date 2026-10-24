@@ -246,8 +246,8 @@
                   "    pm.response.to.have.status(201);",
                   "});",
                   "var json = pm.response.json();",
-                  "pm.test(\"Role is automatically assigned by system policy as CONTRIBUTOR\", function () {",
-                  "    pm.expect(json.user.role).to.eql(\"CONTRIBUTOR\");",
+                  "pm.test(\"Role is successfully assigned as selected (CONTRIBUTOR or VIEWER)\", function () {",
+                  "    pm.expect([\"CONTRIBUTOR\", \"VIEWER\"]).to.include(json.user.role);",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -264,14 +264,14 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"field_agent_new\",\n  \"password\": \"{{testUserPassword}}\"\n}"
+              "raw": "{\n  \"username\": \"field_agent_new\",\n  \"password\": \"{{testUserPassword}}\",\n  \"role\": \"CONTRIBUTOR\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/register",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "auth", "register"]
             },
-            "description": "Registers a new user account. Role is strictly assigned by server policy as CONTRIBUTOR (clients cannot elevate their own role)."
+            "description": "Registers a new user account. Users can choose between CONTRIBUTOR and VIEWER roles (defaults to CONTRIBUTOR). Attempting to self-assign ADMIN is rejected with HTTP 400."
           },
           "response": []
         },

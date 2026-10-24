@@ -22,6 +22,12 @@ const RegisterSchema = z.object({
     .string()
     .min(6, 'Password must be at least 6 characters long')
     .max(100, 'Password cannot exceed 100 characters'),
+  role: z
+    .enum([UserRole.CONTRIBUTOR, UserRole.VIEWER], {
+      errorMap: () => ({ message: 'Role must be either CONTRIBUTOR or VIEWER' }),
+    })
+    .optional()
+    .default(UserRole.CONTRIBUTOR),
 });
 
 export class AuthController {
@@ -75,7 +81,7 @@ export class AuthController {
 
   /**
    * User registration: Creates new user account in database with hashed password.
-   * Role is assigned by system policy (defaults to CONTRIBUTOR, cannot be set by client).
+   * Users can choose between CONTRIBUTOR and VIEWER roles. Defaults to CONTRIBUTOR.
    */
   public async register(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -84,7 +90,7 @@ export class AuthController {
         throw new BadRequestError('Validation error', parsed.error.errors);
       }
 
-      const { username, password } = parsed.data;
+      const { username, password, role } = parsed.data;
       const existingUser = await prisma.user.findUnique({
         where: { username },
       });
@@ -94,8 +100,8 @@ export class AuthController {
       }
 
       const passwordHash = await hashPassword(password);
-      // System policy dictates role: standard registration gets CONTRIBUTOR role
-      const assignedRole = UserRole.CONTRIBUTOR;
+      // User can choose between CONTRIBUTOR and VIEWER role (defaults to CONTRIBUTOR)
+      const assignedRole = role || UserRole.CONTRIBUTOR;
 
       const newUser = await prisma.user.create({
         data: {

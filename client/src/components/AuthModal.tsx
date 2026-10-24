@@ -19,6 +19,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [selectedRole, setSelectedRole] = useState<UserRole.CONTRIBUTOR | UserRole.VIEWER>(UserRole.CONTRIBUTOR);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -54,7 +55,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         const res = await api.login(username.trim(), password);
         onAuthSuccess(res.user);
       } else {
-        const res = await api.register(username.trim(), password);
+        const res = await api.register(username.trim(), password, selectedRole);
         onAuthSuccess(res.user);
       }
       onClose();
@@ -72,7 +73,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <div className="modal-title-wrap">
             <ShieldIcon size={20} color="#38bdf8" />
             <h2 className="modal-title">
-              {mode === 'login' ? 'Authentication & Role Management' : 'Register Contributor Account'}
+              {mode === 'login' ? 'Authentication & Role Management' : 'Register New Account'}
             </h2>
           </div>
           <button id="btn-close-auth-modal" className="btn-icon" onClick={onClose} title="Close">
@@ -160,7 +161,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               className={`auth-tab ${mode === 'register' ? 'active' : ''}`}
               onClick={() => { setMode('register'); setError(null); }}
             >
-              Register (System Contributor)
+              Register Account
             </button>
           </div>
 
@@ -191,10 +192,45 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 autoComplete="current-password"
                 required
               />
-              {mode === 'register' && (
-                <span className="input-helper">Minimum 6 characters. Role is assigned automatically by database policy as CONTRIBUTOR.</span>
-              )}
             </div>
+
+            {mode === 'register' && (
+              <div className="form-group">
+                <label className="field-label">Choose Your Role</label>
+                <div className="register-role-grid">
+                  <button
+                    type="button"
+                    id="btn-role-choice-contributor"
+                    className={`register-role-card ${selectedRole === UserRole.CONTRIBUTOR ? 'selected' : ''}`}
+                    onClick={() => setSelectedRole(UserRole.CONTRIBUTOR)}
+                  >
+                    <div className="role-card-top">
+                      <span className="role-card-label">Field Contributor</span>
+                      <span className="role-badge badge-contributor">CONTRIBUTOR</span>
+                    </div>
+                    <p className="role-card-text">
+                      Report disasters, update incident status, and register emergency assets.
+                    </p>
+                  </button>
+
+                  <button
+                    type="button"
+                    id="btn-role-choice-viewer"
+                    className={`register-role-card ${selectedRole === UserRole.VIEWER ? 'selected' : ''}`}
+                    onClick={() => setSelectedRole(UserRole.VIEWER)}
+                  >
+                    <div className="role-card-top">
+                      <span className="role-card-label">Public Viewer</span>
+                      <span className="role-badge badge-viewer">VIEWER</span>
+                    </div>
+                    <p className="role-card-text">
+                      Read-only access to interactive maps, proximity searches, and social reports.
+                    </p>
+                  </button>
+                </div>
+                <span className="input-helper">Minimum 6 characters. Selected role is stored securely in the database.</span>
+              </div>
+            )}
 
             <div className="modal-actions">
               <button

@@ -3,12 +3,12 @@
 
 | Field         | Value                                                  |
 | :------------ | :----------------------------------------------------- |
-| **Version**   | 1.2.0                                                  |
+| **Version**   | 1.4.0                                                  |
 | **Status**    | Approved for Implementation                            |
 | **Owner**     | Soham Khare                                            |
 | **Created**   | 2026-10-23 16:30 IST                                   |
-| **Updated**   | 2026-10-24 20:25 IST                                   |
-| **TRD Ref**   | TRD v1.2.0                                             |
+| **Updated**   | 2026-10-24 22:36 IST                                   |
+| **TRD Ref**   | TRD v1.4.0                                             |
 | **Project**   | Disaster Response Coordination Platform (DRCP)         |
 
 ---
@@ -17,6 +17,8 @@
 
 | Version | Date & Time          | Summary of Changes                                                      |
 | :------ | :------------------- | :---------------------------------------------------------------------- |
+| 1.4.0   | 2026-10-24 22:36 IST | Enterprise Dockerization & Multi-Stage Deployment: Containerized backend service via multi-stage Node 20 Alpine with automatic Prisma migration & seeding entrypoint (`docker-entrypoint.sh`). Containerized frontend service via multi-stage Node build with production Nginx Alpine reverse proxy for `/api/` and `/socket.io/`. Orchestrated via root `docker-compose.yml` with volume persistence (`drcp-db`) and automated service healthchecks. |
+| 1.3.0   | 2026-10-24 22:30 IST | User Registration Role Selection: Updated `RegisterSchema` in `AuthController` to accept optional `role` parameter restricted to `CONTRIBUTOR` or `VIEWER` (defaulting to `CONTRIBUTOR`). Self-assignment of `ADMIN` is rejected with `HTTP 400 Bad Request`. Updated `AuthModal.tsx` with role choice cards. |
 | 1.2.0   | 2026-10-24 20:25 IST | Monorepo Restructuring: Decoupled backend architecture into dedicated `server/` directory alongside `client/` frontend. Server encapsulates `src/`, `prisma/`, `tests/`, `vitest.config.ts`, and `tsconfig.json` with isolated dependencies and SQLite DB. Root `package.json` orchestrates unified cross-workspace scripts (`npm test`, `npm run dev`, `npm run seed`, `npm run build`). |
 | 1.1.0   | 2026-10-24 11:45 IST | Credentialed Password Authentication & System-Enforced RBAC: Added passwordHash to User DDL, scrypt+salt hashing specification, auth endpoint contracts (login, register, logout, me), and eliminated mock header role self-claiming. Enforced zero emojis. |
 | 1.0.1   | 2026-10-23 16:42 IST | Updated project root path references from Dissaster to DRCP.            |
@@ -943,6 +945,9 @@ DRCP/
 │   │   ├── types/              # Shared enums and data interfaces
 │   │   ├── App.tsx             # Command dashboard container
 │   │   └── main.tsx            # React application entry point
+│   ├── .dockerignore           # Client container build exclusions
+│   ├── Dockerfile              # Multi-stage production container build (Node 20 -> Nginx Alpine)
+│   ├── nginx.conf              # Reverse proxy configuration (/api/, /socket.io/)
 │   ├── package.json            # Frontend dependencies
 │   ├── tsconfig.json           # Frontend TypeScript configuration
 │   └── vite.config.ts          # Vite build & proxy configuration
@@ -962,18 +967,23 @@ DRCP/
 │   │   ├── types/              # Enums (UserRole, DisasterStatus, ResourceType, HttpHeader)
 │   │   ├── app.ts              # Express application assembly
 │   │   └── server.ts           # Server bootstrap and port listener
-│   ├── tests/                  # Vitest automated test suites (58 passing tests)
+│   ├── tests/                  # Vitest automated test suites (61 passing tests)
+│   ├── .dockerignore           # Server container build exclusions
 │   ├── .env                    # Backend environment configuration
 │   ├── .env.example            # Backend environment template
+│   ├── docker-entrypoint.sh    # Container boot script: auto prisma db push + seed
+│   ├── Dockerfile              # Multi-stage container build (Node 20 Alpine)
 │   ├── package.json            # Backend dependencies & scripts
 │   ├── tsconfig.json           # Backend TypeScript configuration
 │   └── vitest.config.ts        # Vitest configuration
 │
 ├── docs/                       # Project Specification & Execution Tracking
-│   ├── TRD.md                  # Technical Requirements Document (v1.2.0)
-│   ├── TDS.md                  # Technical Design Specification (v1.2.0)
-│   └── STAGES.md               # Stage Tracker & Task Execution Plan (v1.15.0)
+│   ├── TRD.md                  # Technical Requirements Document (v1.4.0)
+│   ├── TDS.md                  # Technical Design Specification (v1.4.0)
+│   └── STAGES.md               # Stage Tracker & Task Execution Plan (v1.20.0)
 │
+├── .dockerignore               # Monorepo container build exclusions
 ├── .env.example                # Root environment template
-└── package.json                # Monorepo root orchestrator scripts
+├── docker-compose.yml          # Enterprise orchestration (server, client, drcp-db volume)
+└── package.json                # Monorepo root orchestrator scripts (native & docker)
 ```
