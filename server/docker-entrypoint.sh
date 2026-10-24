@@ -15,4 +15,8 @@ else
 fi
 
 echo "[Docker] Starting DRCP API Server on port 3000..."
-exec node dist/server.js
+if [ -f dist/src/server.js ]; then
+  exec node dist/src/server.js
+else
+  exec node dist/server.js
+fi
