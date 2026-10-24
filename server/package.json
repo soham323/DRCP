@@ -4,11 +4,11 @@
   "description": "Disaster Response Coordination Platform (DRCP) - Resilient Backend & Real-Time API",
   "author": "Soham Khare",
   "license": "MIT",
-  "main": "dist/server.js",
+  "main": "dist/src/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js",
+    "start": "node dist/src/server.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "prisma:generate": "prisma generate",

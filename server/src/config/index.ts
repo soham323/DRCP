@@ -43,21 +43,21 @@ export const config: AppConfig = {
   externalTimeoutMs: parseInt(process.env.EXTERNAL_TIMEOUT_MS || '3000', 10),
   auth: {
     admin: {
-      username: process.env.SEED_ADMIN_USERNAME || '',
-      password: process.env.SEED_ADMIN_PASSWORD || '',
-      apiKey: process.env.SEED_ADMIN_API_KEY || '',
+      username: process.env.SEED_ADMIN_USERNAME || 'admin',
+      password: process.env.SEED_ADMIN_PASSWORD || 'Admin@123',
+      apiKey: process.env.SEED_ADMIN_API_KEY || 'mock_test_admin_key',
     },
     contributor: {
-      username: process.env.SEED_CONTRIBUTOR_USERNAME || '',
-      password: process.env.SEED_CONTRIBUTOR_PASSWORD || '',
-      apiKey: process.env.SEED_CONTRIBUTOR_API_KEY || '',
+      username: process.env.SEED_CONTRIBUTOR_USERNAME || 'contributor',
+      password: process.env.SEED_CONTRIBUTOR_PASSWORD || 'Contributor@123',
+      apiKey: process.env.SEED_CONTRIBUTOR_API_KEY || 'mock_test_contributor_key',
     },
     viewer: {
-      username: process.env.SEED_VIEWER_USERNAME || '',
-      password: process.env.SEED_VIEWER_PASSWORD || '',
-      apiKey: process.env.SEED_VIEWER_API_KEY || '',
+      username: process.env.SEED_VIEWER_USERNAME || 'viewer',
+      password: process.env.SEED_VIEWER_PASSWORD || 'Viewer@123',
+      apiKey: process.env.SEED_VIEWER_API_KEY || 'mock_test_viewer_key',
     },
-    testUserPassword: process.env.TEST_USER_PASSWORD || '',
+    testUserPassword: process.env.TEST_USER_PASSWORD || 'TestSecurePass@123',
   },
 };
 
