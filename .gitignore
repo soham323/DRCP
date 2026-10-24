@@ -16,3 +16,8 @@ dev.db-journal
 Thumbs.db
 client/dist/
 client/node_modules/
+server/dist/
+server/node_modules/
+server/prisma/dev.db*
+server/.env
+!server/.env.example

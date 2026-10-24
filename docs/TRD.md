@@ -3,11 +3,11 @@
 
 | Field         | Value                                                  |
 | :------------ | :----------------------------------------------------- |
-| **Version**   | 1.1.0                                                  |
+| **Version**   | 1.2.0                                                  |
 | **Status**    | Approved                                               |
 | **Owner**     | Soham Khare                                            |
 | **Created**   | 2026-10-23 15:40 IST                                   |
-| **Updated**   | 2026-10-24 11:45 IST                                   |
+| **Updated**   | 2026-10-24 20:25 IST                                   |
 | **Project**   | Disaster Response Coordination Platform (DRCP)         |
 
 ---
@@ -16,6 +16,7 @@
 
 | Version | Date & Time          | Summary of Changes                                                          |
 | :------ | :------------------- | :-------------------------------------------------------------------------- |
+| 1.2.0   | 2026-10-24 20:25 IST | Project Architecture Modularization: Formally decoupled the solution into dedicated `server/` (Node.js API, Socket.io, Prisma, Vitest) and `client/` (React 18 + Vite PWA) workspaces under a unified root monorepo with cross-workspace orchestrator scripts. |
 | 1.1.0   | 2026-10-24 11:45 IST | Hardened Authentication & RBAC: Enforced password verification (scrypt+salt), system-assigned database roles, removal of client header role self-claiming, and strictly validated JWT / API-key authorization. |
 | 1.0.1   | 2026-10-23 16:11 IST | Updated document owner to Soham Khare                                      |
 | 1.0.0   | 2026-10-23 15:40 IST | Initial TRD created covering all 8 core assignment areas, NFRs, and test cases |
@@ -54,8 +55,9 @@ DRCP solves these problems by providing an automated, resilient, and role-govern
 5. **Cache-Aside Architecture:** In-memory / distributed caching with defined TTLs to protect external feeds and optimize latency.
 6. **Real-Time Push Notifications:** Event emission (`disaster_created`, `disaster_updated`) via WebSocket or Server-Sent Events (SSE).
 7. **Role-Based Access Control (RBAC) & Credentialed Auth:** Database-backed password authentication (scrypt + salt), system-assigned roles, and cryptographic JWT / API-key authorization differentiating `ADMIN`, `CONTRIBUTOR`, and `VIEWER` permissions. Client role self-claiming via headers is strictly forbidden.
-8. **Automated Test Suite:** Integration and unit tests validating endpoints, schema enforcement, business rules, and integration mocks.
-9. **Interactive Verification UI:** Single-page dashboard with interactive Leaflet map to visually demonstrate radius queries and real-time events.
+8. **Automated Test Suite:** Integration and unit tests located in `server/tests/` validating endpoints, schema enforcement, business rules, and integration mocks.
+9. **Interactive Verification UI:** Single-page dashboard located in `client/` with interactive Leaflet map to visually demonstrate radius queries and real-time events.
+10. **Clean Monorepo Workspace Structure:** Clear division between `server/` (Express API) and `client/` (React 18 PWA) with root orchestrator scripts.
 
 ### 3.2 Out of Scope
 1. Enterprise Multi-Factor Authentication (MFA) and external OAuth2 third-party SSO (internal password hashing with scrypt and signed JWTs are used).

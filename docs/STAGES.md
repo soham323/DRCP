@@ -3,11 +3,11 @@
 
 | Field         | Value                                                  |
 | :------------ | :----------------------------------------------------- |
-| **Version**   | 1.12.0                                                 |
+| **Version**   | 1.15.0                                                 |
 | **Status**    | Active                                                 |
 | **Owner**     | Soham Khare                                            |
 | **Created**   | 2026-10-23 16:35 IST                                   |
-| **Updated**   | 2026-10-24 13:30 IST                                   |
+| **Updated**   | 2026-10-24 20:25 IST                                   |
 | **Project**   | Disaster Response Coordination Platform (DRCP)         |
 
 ---
@@ -16,6 +16,9 @@
 
 | Version | Date & Time          | Summary of Changes                                                                          |
 | :------ | :------------------- | :------------------------------------------------------------------------------------------ |
+| 1.15.0  | 2026-10-24 20:25 IST | Monorepo Restructuring: Decoupled and shifted all backend code, Prisma schemas, database migrations, and test suites into dedicated `server/` directory alongside `client/`. Configured root `package.json` with unified workspace orchestrator scripts (`npm test`, `npm run dev:server`, `npm run dev:client`, `npm run seed`, `npm run build`). Verified 58/58 test pass rate. |
+| 1.14.0  | 2026-10-24 14:32 IST | Completed Stage 5: ST-5-1, ST-5-2, ST-5-3 all Done. Built React 18 + Vite command dashboard in `client/` with Leaflet.js map, dynamic Haversine radius circle (1–50km), real-time Socket.io live sync & alert banner, credentialed RBAC authentication switcher, NLP incident reporting, and Cache-Aside (`X-Cache`) inspector. Verified end-to-end via automated browser subagent. |
+| 1.13.0  | 2026-10-24 14:18 IST | Commenced Stage 5: Marked ST-5-1 through ST-5-3 In Progress. Refined task specifications to mandate credentialed JWT authentication, strict shared TypeScript enums, nested location schemas for emergency resources, and live Cache-Aside / circuit-breaker visual inspection. |
 | 1.12.0  | 2026-10-24 13:30 IST | Environment Credential Hardening: Eliminated all hardcoded passwords, usernames, and API keys across source code, tests, seed scripts, and documentation. All credentials now strictly sourced via `config.auth.*` and `.env`. Updated Postman collection variables and verified all test suites pass. |
 | 1.11.0  | 2026-10-24 12:24 IST | Completed Stage 4: ST-4-1, ST-4-2, ST-4-3, ST-4-4 all Done. Configured vitest.config.ts, implemented 4 automated test suites (58 tests) validating auth, disaster CRUD, geospatial math, and caching resilience. |
 | 1.10.0  | 2026-10-24 12:17 IST | Commenced Stage 4: Updated tasks ST-4-1 through ST-4-4 to In Progress with detailed specifications for password auth, system RBAC, Haversine math, and circuit breaker resilience. |
@@ -38,11 +41,11 @@
 | Metric         | Count |
 | :------------- | :---- |
 | Total Tasks    | 24    |
-| Done           | 19    |
+| Done           | 22    |
 | In Progress    | 0     |
 | Testing        | 0     |
 | Blocked        | 0     |
-| To Do          | 5     |
+| To Do          | 2     |
 
 ---
 
@@ -124,9 +127,11 @@
 
 | Task ID | Task Description | Status | Related FRs / NFRs | Notes |
 | :--- | :--- | :--- | :--- | :--- |
-| **ST-5-1** | Scaffold lightweight React 18 + Vite dashboard with responsive mobile-first styling in `client/`. | To Do | NFR-002 | Clean UI framework |
-| **ST-5-2** | Integrate Leaflet.js interactive map displaying disaster pins, resource markers, and radius circles. | To Do | FR-010 | Visual geospatial map |
-| **ST-5-3** | Connect live Socket.io real-time alert ticker and disaster reporting form to demonstrate live events. | To Do | FR-015 | End-to-end demo |
+| **ST-5-1** | Scaffold React 18 + Vite dashboard (`client/`) with responsive mobile-ready styling, strict shared TypeScript enums, and credentialed JWT authentication/role switching (`POST /api/v1/auth/login`, `POST /api/v1/auth/register`, `GET /api/v1/auth/me`). | Done | NFR-002, FR-016, FR-017 | Auth & UI core |
+| **ST-5-2** | Integrate Leaflet.js interactive map displaying disaster pins, dynamic radius circle overlay (1–50km), and nested-schema emergency resource plotting (`GET /api/v1/disasters/:id/resources`). | Done | FR-009, FR-010 | Geospatial Leaflet map |
+| **ST-5-3** | Connect live Socket.io real-time alert ticker, natural language disaster reporting form (`POST /api/v1/disasters`), and Cache-Aside (`X-Cache`) inspector with simulated circuit-breaker demonstration. | Done | FR-012, FR-014, FR-015 | Real-time & resilience UI |
+
+
 
 ---
 
