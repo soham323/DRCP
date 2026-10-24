@@ -3,12 +3,12 @@
 
 | Field         | Value                                                  |
 | :------------ | :----------------------------------------------------- |
-| **Version**   | 1.1.0                                                  |
+| **Version**   | 1.2.0                                                  |
 | **Status**    | Approved for Implementation                            |
 | **Owner**     | Soham Khare                                            |
 | **Created**   | 2026-10-23 16:30 IST                                   |
-| **Updated**   | 2026-10-24 11:45 IST                                   |
-| **TRD Ref**   | TRD v1.1.0                                             |
+| **Updated**   | 2026-10-24 20:25 IST                                   |
+| **TRD Ref**   | TRD v1.2.0                                             |
 | **Project**   | Disaster Response Coordination Platform (DRCP)         |
 
 ---
@@ -17,6 +17,7 @@
 
 | Version | Date & Time          | Summary of Changes                                                      |
 | :------ | :------------------- | :---------------------------------------------------------------------- |
+| 1.2.0   | 2026-10-24 20:25 IST | Monorepo Restructuring: Decoupled backend architecture into dedicated `server/` directory alongside `client/` frontend. Server encapsulates `src/`, `prisma/`, `tests/`, `vitest.config.ts`, and `tsconfig.json` with isolated dependencies and SQLite DB. Root `package.json` orchestrates unified cross-workspace scripts (`npm test`, `npm run dev`, `npm run seed`, `npm run build`). |
 | 1.1.0   | 2026-10-24 11:45 IST | Credentialed Password Authentication & System-Enforced RBAC: Added passwordHash to User DDL, scrypt+salt hashing specification, auth endpoint contracts (login, register, logout, me), and eliminated mock header role self-claiming. Enforced zero emojis. |
 | 1.0.1   | 2026-10-23 16:42 IST | Updated project root path references from Dissaster to DRCP.            |
 | 1.0.0   | 2026-10-23 16:30 IST | Initial complete TDS created from TRD v1.0.1 covering all 15 sections.  |
@@ -912,12 +913,12 @@ To satisfy the requirement that this platform can easily become a native mobile 
 
 ## 13. Testing Strategy
 
-The automated test suite (`tests/`) uses Vitest/Jest and Supertest to validate:
-1. **API Endpoint Test (`tests/disaster.test.ts`):** `POST /disasters` and `GET /disasters` lifecycle.
-2. **Validation / Error Test (`tests/disaster.test.ts`):** Rejection of empty/short title and descriptions with 400 Bad Request.
-3. **Business Rule / Authorization Test (`tests/auth.test.ts`):** `DELETE /disasters/:id` rejected with 403 for `contributor` and permitted with 204 for `admin`.
-4. **Geospatial Radius Test (`tests/geospatial.test.ts`):** Correct filtering of resources within 5 km vs 25 km using the Haversine equation.
-5. **External Integration & Cache Test (`tests/caching.test.ts`):** Verification of `X-Cache: MISS` on initial fetch and `X-Cache: HIT` on subsequent fetch, plus graceful fallback when mock external service simulates an outage.
+The automated test suite (`server/tests/`) uses Vitest and Supertest to validate:
+1. **API Endpoint Test (`server/tests/disaster.test.ts`):** `POST /disasters` and `GET /disasters` lifecycle.
+2. **Validation / Error Test (`server/tests/disaster.test.ts`):** Rejection of empty/short title and descriptions with 400 Bad Request.
+3. **Business Rule / Authorization Test (`server/tests/auth.test.ts`):** `DELETE /disasters/:id` rejected with 403 for `contributor` and permitted with 204 for `admin`.
+4. **Geospatial Radius Test (`server/tests/geospatial.test.ts`):** Correct filtering of resources within 5 km vs 25 km using the Haversine equation.
+5. **External Integration & Cache Test (`server/tests/caching.test.ts`):** Verification of `X-Cache: MISS` on initial fetch and `X-Cache: HIT` on subsequent fetch, plus graceful fallback when mock external service simulates an outage.
 
 ---
 
@@ -928,3 +929,51 @@ The automated test suite (`tests/`) uses Vitest/Jest and Supertest to validate:
 | **Prisma with SQLite** | Embedded SQLite for dev / test | Reviewers can run the application instantly with `npm run dev` without needing Docker or a local PostgreSQL instance running. Switching to Postgres is as simple as updating `provider = "postgresql"` in `schema.prisma`. |
 | **Haversine vs PostGIS**| Haversine calculation in application layer | PostGIS requires specialized PostgreSQL extensions that cannot run on vanilla SQLite. The Haversine formula provides identical spatial accuracy with zero external dependencies and sub-millisecond execution. |
 | **In-Memory CacheStore**| In-memory LRU with Redis interface | Allows out-of-the-box caching with zero external setup, while allowing production deployments to toggle Redis via `CACHE_DRIVER=redis`. |
+
+---
+
+## 15. Monorepo Project Directory Structure
+
+```
+DRCP/
+├── client/                     # Frontend Web / PWA Application (React 18 + Vite)
+│   ├── src/
+│   │   ├── components/         # LeafletMap, LocationPicker, Modals, Navbar, etc.
+│   │   ├── services/           # REST api.ts, Socket.io socket.ts
+│   │   ├── types/              # Shared enums and data interfaces
+│   │   ├── App.tsx             # Command dashboard container
+│   │   └── main.tsx            # React application entry point
+│   ├── package.json            # Frontend dependencies
+│   ├── tsconfig.json           # Frontend TypeScript configuration
+│   └── vite.config.ts          # Vite build & proxy configuration
+│
+├── server/                     # Backend API & Real-Time Engine (Node.js + Express)
+│   ├── prisma/
+│   │   ├── dev.db              # SQLite development database
+│   │   ├── schema.prisma       # Prisma ORM models and indexes
+│   │   └── seed.ts             # Comprehensive database seed script
+│   ├── src/
+│   │   ├── cache/              # In-memory LRU CacheStore & Redis adapter interface
+│   │   ├── common/             # Haversine math, RFC 7807 errors, logger
+│   │   ├── config/             # Environment configuration & credential loader
+│   │   ├── middleware/         # RBAC guard, JWT validator, RFC 7807 handler
+│   │   ├── modules/            # Domain modules (auth, disasters, geocoding, resources, reports)
+│   │   ├── realtime/           # Socket.io broadcast engine
+│   │   ├── types/              # Enums (UserRole, DisasterStatus, ResourceType, HttpHeader)
+│   │   ├── app.ts              # Express application assembly
+│   │   └── server.ts           # Server bootstrap and port listener
+│   ├── tests/                  # Vitest automated test suites (58 passing tests)
+│   ├── .env                    # Backend environment configuration
+│   ├── .env.example            # Backend environment template
+│   ├── package.json            # Backend dependencies & scripts
+│   ├── tsconfig.json           # Backend TypeScript configuration
+│   └── vitest.config.ts        # Vitest configuration
+│
+├── docs/                       # Project Specification & Execution Tracking
+│   ├── TRD.md                  # Technical Requirements Document (v1.2.0)
+│   ├── TDS.md                  # Technical Design Specification (v1.2.0)
+│   └── STAGES.md               # Stage Tracker & Task Execution Plan (v1.15.0)
+│
+├── .env.example                # Root environment template
+└── package.json                # Monorepo root orchestrator scripts
+```
