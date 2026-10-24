@@ -1,5 +1,6 @@
 import { io as ClientSocket, Socket } from 'socket.io-client';
-import { UserRole, HttpHeader, RealtimeEvent, SeedApiKey } from '../src/common/enums';
+import { UserRole, HttpHeader, RealtimeEvent } from '../src/common/enums';
+import { config } from '../src/config';
 
 const BASE_URL = process.env.TEST_URL || 'http://localhost:3000';
 let totalAssertions = 0;
@@ -82,7 +83,7 @@ async function runStage3Verification() {
     method: 'POST',
     body: JSON.stringify({
       username: uniqueUsername,
-      password: 'SecurePassword@123',
+      password: config.auth.testUserPassword,
     }),
   });
   assert(registerRes.status === 201, 'POST /api/v1/auth/register returns HTTP 201 Created');
@@ -94,7 +95,7 @@ async function runStage3Verification() {
     method: 'POST',
     body: JSON.stringify({
       username: uniqueUsername,
-      password: 'SecurePassword@123',
+      password: config.auth.testUserPassword,
     }),
   });
   assert(duplicateRegisterRes.status === 409, 'Duplicate username registration returns HTTP 409 Conflict');
@@ -103,8 +104,8 @@ async function runStage3Verification() {
   const invalidPasswordRes = await request('/api/v1/auth/login', {
     method: 'POST',
     body: JSON.stringify({
-      username: 'admin',
-      password: 'IncorrectPassword!',
+      username: config.auth.admin.username,
+      password: `${config.auth.admin.password}_incorrect`,
     }),
   });
   assert(invalidPasswordRes.status === 401, 'Login with incorrect password returns HTTP 401 Unauthorized');
@@ -113,8 +114,8 @@ async function runStage3Verification() {
   const adminLoginRes = await request('/api/v1/auth/login', {
     method: 'POST',
     body: JSON.stringify({
-      username: 'admin',
-      password: 'Admin@123',
+      username: config.auth.admin.username,
+      password: config.auth.admin.password,
     }),
   });
   assert(adminLoginRes.status === 200, 'Admin login with valid password returns HTTP 200 OK');
@@ -125,8 +126,8 @@ async function runStage3Verification() {
   const contribLoginRes = await request('/api/v1/auth/login', {
     method: 'POST',
     body: JSON.stringify({
-      username: 'contributor',
-      password: 'Contributor@123',
+      username: config.auth.contributor.username,
+      password: config.auth.contributor.password,
     }),
   });
   assert(contribLoginRes.status === 200, 'Contributor login returns HTTP 200 OK');
@@ -137,8 +138,8 @@ async function runStage3Verification() {
   const viewerLoginRes = await request('/api/v1/auth/login', {
     method: 'POST',
     body: JSON.stringify({
-      username: 'viewer',
-      password: 'Viewer@123',
+      username: config.auth.viewer.username,
+      password: config.auth.viewer.password,
     }),
   });
   assert(viewerLoginRes.status === 200, 'Viewer login returns HTTP 200 OK');
@@ -154,7 +155,7 @@ async function runStage3Verification() {
 
   // 2h. Database API Key Authentication (Machine-to-Machine)
   const apiKeyMeRes = await request('/api/v1/auth/me', {
-    headers: { [HttpHeader.X_API_KEY]: SeedApiKey.ADMIN },
+    headers: { [HttpHeader.X_API_KEY]: config.auth.admin.apiKey },
   });
   assert(apiKeyMeRes.status === 200, 'GET /api/v1/auth/me with X-API-Key returns HTTP 200');
   assert(apiKeyMeRes.body.data.user.role === UserRole.ADMIN, 'API Key authenticates admin identity via database record');

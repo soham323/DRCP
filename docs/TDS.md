@@ -370,7 +370,7 @@ All endpoints return uniform response shapes. Successful responses wrap payloads
   ```json
   {
     "username": "admin",
-    "password": "Admin@123"
+    "password": "<configured-admin-password>"
   }
   ```
 - **Success Response `200 OK`:**
@@ -398,7 +398,7 @@ All endpoints return uniform response shapes. Successful responses wrap payloads
   ```json
   {
     "username": "field_worker_01",
-    "password": "Password@123"
+    "password": "<user-provided-secure-password>"
   }
   ```
 - **Success Response `201 Created`:**

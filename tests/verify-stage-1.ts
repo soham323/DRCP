@@ -1,7 +1,8 @@
 import request from 'supertest';
 import { app } from '../src/app';
 import { prisma } from '../src/common/prisma';
-import { HttpHeader, UserRole, DisasterStatus, SeedApiKey } from '../src/common/enums';
+import { HttpHeader, UserRole, DisasterStatus } from '../src/common/enums';
+import { config } from '../src/config';
 
 async function runStage1Verification() {
   console.log('====================================================');
@@ -38,7 +39,7 @@ async function runStage1Verification() {
 
   const createGeoRes = await request(app)
     .post('/api/v1/disasters')
-    .set(HttpHeader.X_API_KEY, SeedApiKey.ADMIN)
+    .set(HttpHeader.X_API_KEY, config.auth.admin.apiKey)
     .send(geocodePayload);
   assert(createGeoRes.status === 201, 'POST /disasters returns 201 Created');
   assert(
@@ -64,7 +65,7 @@ async function runStage1Verification() {
 
   const invalidRes = await request(app)
     .post('/api/v1/disasters')
-    .set(HttpHeader.X_API_KEY, SeedApiKey.ADMIN)
+    .set(HttpHeader.X_API_KEY, config.auth.admin.apiKey)
     .send(invalidPayload);
   assert(invalidRes.status === 400, 'Invalid payload returns 400 Bad Request');
   assert(invalidRes.body.code === 'VALIDATION_ERROR', 'Returns code VALIDATION_ERROR');
@@ -112,7 +113,7 @@ async function runStage1Verification() {
   console.log('\n[TEST 9] Testing PATCH /api/v1/disasters/:id...');
   const updateRes = await request(app)
     .patch(`/api/v1/disasters/${createdDisasterId}`)
-    .set(HttpHeader.X_API_KEY, SeedApiKey.ADMIN)
+    .set(HttpHeader.X_API_KEY, config.auth.admin.apiKey)
     .send({
       status: DisasterStatus.CONTAINED,
       title: 'Updated: Flash Flood Lower Manhattan (Controlled)',
@@ -125,7 +126,7 @@ async function runStage1Verification() {
   console.log('\n[TEST 10] Testing DELETE /api/v1/disasters/:id...');
   const deleteRes = await request(app)
     .delete(`/api/v1/disasters/${createdDisasterId}`)
-    .set(HttpHeader.X_API_KEY, SeedApiKey.ADMIN);
+    .set(HttpHeader.X_API_KEY, config.auth.admin.apiKey);
   assert(deleteRes.status === 204, 'DELETE returns 204 No Content');
 
   // Confirm deletion

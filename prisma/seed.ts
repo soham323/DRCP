@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { UserRole, SeedApiKey, SeedUserId } from '../src/common/enums';
 import { hashPassword } from '../src/common/security';
+import { config } from '../src/config';
 
 const prisma = new PrismaClient();
 
@@ -13,39 +14,39 @@ async function main() {
   await prisma.disaster.deleteMany();
   await prisma.user.deleteMany();
 
-  // 2. Seed Users with Scrypt Hashed Passwords
-  console.log('[Seed] Seeding Users and Roles with password hashes...');
-  const adminPasswordHash = await hashPassword('Admin@123');
-  const contributorPasswordHash = await hashPassword('Contributor@123');
-  const viewerPasswordHash = await hashPassword('Viewer@123');
+  // 2. Seed Users with Scrypt Hashed Passwords sourced from environment configuration
+  console.log('[Seed] Seeding Users and Roles with password hashes from environment...');
+  const adminPasswordHash = await hashPassword(config.auth.admin.password);
+  const contributorPasswordHash = await hashPassword(config.auth.contributor.password);
+  const viewerPasswordHash = await hashPassword(config.auth.viewer.password);
 
   const adminUser = await prisma.user.create({
     data: {
       id: SeedUserId.ADMIN,
-      username: UserRole.ADMIN.toLowerCase(),
+      username: config.auth.admin.username,
       passwordHash: adminPasswordHash,
       role: UserRole.ADMIN,
-      apiKey: SeedApiKey.ADMIN,
+      apiKey: config.auth.admin.apiKey,
     },
   });
 
   const contributorUser = await prisma.user.create({
     data: {
       id: SeedUserId.CONTRIBUTOR,
-      username: UserRole.CONTRIBUTOR.toLowerCase(),
+      username: config.auth.contributor.username,
       passwordHash: contributorPasswordHash,
       role: UserRole.CONTRIBUTOR,
-      apiKey: SeedApiKey.CONTRIBUTOR,
+      apiKey: config.auth.contributor.apiKey,
     },
   });
 
   const viewerUser = await prisma.user.create({
     data: {
       id: SeedUserId.VIEWER,
-      username: UserRole.VIEWER.toLowerCase(),
+      username: config.auth.viewer.username,
       passwordHash: viewerPasswordHash,
       role: UserRole.VIEWER,
-      apiKey: SeedApiKey.VIEWER,
+      apiKey: config.auth.viewer.apiKey,
     },
   });
 
