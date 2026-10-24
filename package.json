@@ -1,0 +1,28 @@
+{
+  "name": "drcp-monorepo",
+  "version": "1.0.0",
+  "description": "Disaster Response Coordination Platform (DRCP) - Monorepo (Server & Client)",
+  "author": "Soham Khare",
+  "license": "MIT",
+  "scripts": {
+    "dev": "npm run dev --prefix server",
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client",
+    "start": "npm start --prefix server",
+    "build:client": "npm run build --prefix client",
+    "build:server": "npm run build --prefix server",
+    "build": "npm run build:server && npm run build:client",
+    "test": "npm test --prefix server",
+    "test:server": "npm test --prefix server",
+    "test:client": "npm run build --prefix client",
+    "seed": "npm run prisma:seed --prefix server",
+    "prisma:generate": "npm run prisma:generate --prefix server",
+    "prisma:push": "npm run prisma:push --prefix server",
+    "prisma:seed": "npm run prisma:seed --prefix server",
+    "prisma:studio": "npm run prisma:studio --prefix server",
+    "install:all": "npm install --prefix server && npm install --prefix client",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down",
+    "docker:clean": "docker compose down -v"
+  }
+}

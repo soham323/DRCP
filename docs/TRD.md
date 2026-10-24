@@ -3,11 +3,11 @@
 
 | Field         | Value                                                  |
 | :------------ | :----------------------------------------------------- |
-| **Version**   | 1.0.1                                                  |
-| **Status**    | Draft                                                  |
+| **Version**   | 1.4.0                                                  |
+| **Status**    | Approved                                               |
 | **Owner**     | Soham Khare                                            |
 | **Created**   | 2026-10-23 15:40 IST                                   |
-| **Updated**   | 2026-10-23 16:11 IST                                   |
+| **Updated**   | 2026-10-24 22:40 IST                                   |
 | **Project**   | Disaster Response Coordination Platform (DRCP)         |
 
 ---
@@ -16,6 +16,10 @@
 
 | Version | Date & Time          | Summary of Changes                                                          |
 | :------ | :------------------- | :-------------------------------------------------------------------------- |
+| 1.4.0   | 2026-10-24 22:40 IST | Production Containerization: Containerized platform with Node.js 20 Alpine server, multi-stage React 18 + Vite Nginx reverse proxy client, and root `docker-compose.yml` with healthchecks and persistent volumes for 1-command startup (`docker compose up --build`). |
+| 1.3.0   | 2026-10-24 22:30 IST | User Registration Role Selection: Extended registration workflow (`POST /api/v1/auth/register`) and frontend `AuthModal` to allow registering users to choose between `CONTRIBUTOR` (incident/resource management) and `VIEWER` (read-only monitoring). Self-assignment of `ADMIN` is strictly forbidden and rejected. |
+| 1.2.0   | 2026-10-24 20:25 IST | Project Architecture Modularization: Formally decoupled the solution into dedicated `server/` (Node.js API, Socket.io, Prisma, Vitest) and `client/` (React 18 + Vite PWA) workspaces under a unified root monorepo with cross-workspace orchestrator scripts. |
+| 1.1.0   | 2026-10-24 11:45 IST | Hardened Authentication & RBAC: Enforced password verification (scrypt+salt), system-assigned database roles, removal of client header role self-claiming, and strictly validated JWT / API-key authorization. |
 | 1.0.1   | 2026-10-23 16:11 IST | Updated document owner to Soham Khare                                      |
 | 1.0.0   | 2026-10-23 15:40 IST | Initial TRD created covering all 8 core assignment areas, NFRs, and test cases |
 
@@ -52,12 +56,14 @@ DRCP solves these problems by providing an automated, resilient, and role-govern
 4. **Community Reports Normalization:** Ingestion, sanitization, and standardized transformation of external social media feeds.
 5. **Cache-Aside Architecture:** In-memory / distributed caching with defined TTLs to protect external feeds and optimize latency.
 6. **Real-Time Push Notifications:** Event emission (`disaster_created`, `disaster_updated`) via WebSocket or Server-Sent Events (SSE).
-7. **Role-Based Access Control (RBAC):** Token-based lightweight authorization differentiating `admin`, `contributor`, and `viewer` capabilities.
-8. **Automated Test Suite:** Integration and unit tests validating endpoints, schema enforcement, business rules, and integration mocks.
-9. **Interactive Verification UI:** Single-page dashboard with interactive Leaflet map to visually demonstrate radius queries and real-time events.
+7. **Role-Based Access Control (RBAC) & Credentialed Auth:** Database-backed password authentication (scrypt + salt), system-assigned roles, and cryptographic JWT / API-key authorization differentiating `ADMIN`, `CONTRIBUTOR`, and `VIEWER` permissions. Client role self-claiming via headers is strictly forbidden.
+8. **Automated Test Suite:** Integration and unit tests located in `server/tests/` validating endpoints, schema enforcement, business rules, and integration mocks.
+9. **Interactive Verification UI:** Single-page dashboard located in `client/` with interactive Leaflet map to visually demonstrate radius queries and real-time events.
+10. **Clean Monorepo Workspace Structure:** Clear division between `server/` (Express API) and `client/` (React 18 PWA) with root orchestrator scripts.
+11. **Production Docker Containerization:** Automated container packaging with `docker-compose.yml`, Node.js Alpine backend, and multi-stage Nginx reverse proxy frontend with persistent SQLite database volume.
 
 ### 3.2 Out of Scope
-1. Enterprise Multi-Factor Authentication (MFA) and external OAuth2 identity providers (lightweight JWT / mock auth tokens are sufficient).
+1. Enterprise Multi-Factor Authentication (MFA) and external OAuth2 third-party SSO (internal password hashing with scrypt and signed JWTs are used).
 2. Direct satellite telemetry or real-time GPS fleet tracking hardware.
 3. Live production billing systems or commercial SMS gateways.
 4. Heavy microservice decomposition (a clean modular monolith is prioritized for velocity and low operational overhead).
@@ -258,24 +264,30 @@ DRCP solves these problems by providing an automated, resilient, and role-govern
 
 ### 4.7 Authentication & Authorization (FR-016 – FR-017)
 
-#### FR-016: Lightweight Token Authentication
+#### FR-016: Credentialed Password Authentication & System-Enforced Identity
 - **Category**: Auth / Security
-- **Priority**: P1-High
-- **Description**: Secure mutating endpoints with lightweight authentication supporting simulated user identities.
+- **Priority**: P0-Critical
+- **Description**: Secure platform mutations and administrative actions with credentialed authentication where user identity and roles are strictly determined and stored by the system in the database.
 - **Acceptance Criteria**:
-  - [ ] Accepts credentials via standard `Authorization: Bearer <token>` or mock identity header `X-User-Role: <role>`.
-  - [ ] Supports predefined roles: `admin`, `contributor`, and unauthenticated `viewer`.
-  - [ ] Returns HTTP 401 Unauthorized if token is missing/invalid on protected routes.
+  - [ ] Implements `POST /api/v1/auth/login` accepting `username` and `password`.
+  - [ ] Verifies passwords against database `password_hash` using cryptographic `scrypt` hashing with unique 16-byte salts.
+  - [ ] Implements `POST /api/v1/auth/register` creating new user accounts in the database; system policy dictates the role (defaults to `CONTRIBUTOR`), preventing clients from elevating their own privileges.
+  - [ ] Implements `POST /api/v1/auth/logout` and `GET /api/v1/auth/me` to inspect the verified database profile.
+  - [ ] Mints cryptographically signed JWT Bearer tokens containing system-verified `userId`, `username`, and `role`.
+  - [ ] Supports machine-to-machine integration using database-verified API keys (`x-api-key`).
+  - [ ] Strictly forbids client role self-claiming: client-supplied role headers (e.g., `x-user-role`) without valid tokens are rejected with HTTP 401 Unauthorized.
+  - [ ] Returns HTTP 401 Unauthorized if credentials or tokens are invalid, malformed, or expired.
 - **Dependencies**: None
 
 #### FR-017: Role-Based Authorization Rules
 - **Category**: Auth / Security
-- **Priority**: P1-High
-- **Description**: Enforce hierarchical permissions across CRUD operations based on caller role.
+- **Priority**: P0-Critical
+- **Description**: Enforce hierarchical permissions across all routes based strictly on the user's database-assigned role (`ADMIN`, `CONTRIBUTOR`, `VIEWER`).
 - **Acceptance Criteria**:
-  - [ ] `admin`: Permitted to Create, Read, Update, and Delete disasters.
-  - [ ] `contributor`: Permitted to Create, Read, and Update disasters; Forbidden from Delete (HTTP 403 Forbidden).
-  - [ ] `viewer` / Unauthenticated: Permitted to Read (`GET`) disasters, resources, and reports; Forbidden from Create/Update/Delete (HTTP 401/403).
+  - [ ] `ADMIN`: Permitted to Create, Read, Update, and Delete disaster incidents and emergency resources.
+  - [ ] `CONTRIBUTOR`: Permitted to Create, Read, and Update disaster incidents and emergency resources; Forbidden from Delete operations (HTTP 403 Forbidden).
+  - [ ] `VIEWER` / Unauthenticated: Permitted public Read (`GET`) access on disasters, emergency resources, and normalized reports; Forbidden from mutating state (HTTP 401 Unauthorized if unauthenticated, HTTP 403 Forbidden if authenticated as VIEWER).
+  - [ ] All RBAC checks use strongly-typed TypeScript enums (`UserRole`) rather than raw string literals.
 - **Dependencies**: FR-001, FR-004, FR-005, FR-016
 
 ---
@@ -392,10 +404,12 @@ DRCP solves these problems by providing an automated, resilient, and role-govern
 * `created_at`: UTC timestamp.
 
 ### 7.4 User / Authentication Entity
-* `id`: Unique identifier.
-* `username`: Identifier (e.g., `admin_user`, `volunteer_bob`).
-* `role`: System authorization role (`admin`, `contributor`, `viewer`).
-* `token`: Bearer token for request validation.
+* `id`: Unique identifier (UUID).
+* `username`: Unique user handle (e.g., `admin`, `contributor`, `viewer`).
+* `password_hash`: Secure cryptographic scrypt hash with 16-byte random salt (`salt:hash`).
+* `role`: System authorization role stored in DB (`ADMIN`, `CONTRIBUTOR`, `VIEWER`).
+* `api_key`: Optional machine-to-machine integration key.
+* `created_at`: UTC timestamp.
 
 ---
 
@@ -459,17 +473,19 @@ DRCP solves these problems by providing an automated, resilient, and role-govern
 - **Expected Result**: HTTP 400 Bad Request.
 - **Pass Criteria**: Response body has standard error shape containing specific field validation errors for `title` (too short) and `description` (too short).
 
-### TS-003: Role-Based Authorization Enforcement
+### TS-003: Role-Based Authorization & Credential Verification
 - **Type**: Security / Authorization
-- **Related Requirements**: FR-005, FR-017
-- **Pre-conditions**: Disaster `disaster-123` exists.
+- **Related Requirements**: FR-005, FR-016, FR-017
+- **Pre-conditions**: Seed users exist in database (`admin`, `contributor`, `viewer`). Disaster `disaster-123` exists.
 - **Steps**:
-  1. Send `DELETE /disasters/disaster-123` with header `Authorization: Bearer <contributor-token>`.
-  2. Inspect response status.
-  3. Send `DELETE /disasters/disaster-123` with header `Authorization: Bearer <admin-token>`.
-  4. Inspect response status.
-- **Expected Result**: Step 1 returns HTTP 403 Forbidden. Step 3 returns HTTP 204 No Content.
-- **Pass Criteria**: `contributor` cannot delete records; `admin` can delete records.
+  1. Send `POST /api/v1/auth/login` with invalid password -> verify HTTP 401 Unauthorized.
+  2. Send `POST /api/v1/auth/login` with contributor credentials -> extract signed JWT Bearer token.
+  3. Send `DELETE /disasters/disaster-123` with header `Authorization: Bearer <contributor-token>`.
+  4. Send `POST /disasters` with header `x-user-role: admin` (without token) to simulate role self-claiming.
+  5. Send `POST /api/v1/auth/login` with admin credentials -> extract signed JWT Bearer token.
+  6. Send `DELETE /disasters/disaster-123` with header `Authorization: Bearer <admin-token>`.
+- **Expected Result**: Step 1 returns 401. Step 3 returns HTTP 403 Forbidden. Step 4 returns HTTP 401 Unauthorized (forged headers rejected). Step 6 returns HTTP 204 No Content.
+- **Pass Criteria**: Only verified ADMIN credentials can delete records; role cannot be claimed by request headers.
 
 ### TS-004: Geospatial Radius Filtering (Nearby Resources)
 - **Type**: Happy Path / Business Rule
