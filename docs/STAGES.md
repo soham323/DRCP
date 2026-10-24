@@ -3,11 +3,11 @@
 
 | Field         | Value                                                  |
 | :------------ | :----------------------------------------------------- |
-| **Version**   | 1.15.0                                                 |
-| **Status**    | Active                                                 |
+| **Version**   | 1.20.0                                                 |
+| **Status**    | Completed                                              |
 | **Owner**     | Soham Khare                                            |
 | **Created**   | 2026-10-23 16:35 IST                                   |
-| **Updated**   | 2026-10-24 20:25 IST                                   |
+| **Updated**   | 2026-10-24 22:42 IST                                   |
 | **Project**   | Disaster Response Coordination Platform (DRCP)         |
 
 ---
@@ -16,6 +16,11 @@
 
 | Version | Date & Time          | Summary of Changes                                                                          |
 | :------ | :------------------- | :------------------------------------------------------------------------------------------ |
+| 1.20.0  | 2026-10-24 22:42 IST | Completed Stage 7: ST-7-1, ST-7-2, ST-7-3, ST-7-4 all Done. Containerized backend (`server/Dockerfile` with `docker-entrypoint.sh` auto-migration & auto-seed) and frontend (`client/Dockerfile` with Nginx Alpine reverse proxy for `/api/` and `/socket.io/`). Configured root `docker-compose.yml` with persistent SQLite volume (`drcp-db`) and service healthchecks. Added root scripts (`docker:up`, `docker:down`, `docker:clean`) and documented zero-friction startup across `README.md`, `TRD.md`, and `TDS.md`. Project is 100% complete. |
+| 1.19.0  | 2026-10-24 22:36 IST | Commenced Stage 7: Professional Containerization & Docker Packaging. Marked ST-7-1 through ST-7-4 In Progress. Adding `server/Dockerfile`, `client/Dockerfile` with multi-stage Nginx reverse proxy, root `docker-compose.yml`, and 1-command zero-friction launch. |
+| 1.18.0  | 2026-10-24 22:30 IST | User Registration Role Choice: Added capability for registrants to choose between `CONTRIBUTOR` and `VIEWER` roles in `POST /api/v1/auth/register` and `AuthModal.tsx`. Hardened Zod validation to reject unauthorized `ADMIN` elevation with `HTTP 400 Bad Request`. Added 3 new automated test cases (61 passing tests total) and updated Postman collection. |
+| 1.17.0  | 2026-10-24 20:55 IST | Completed Stage 6: ST-6-1, ST-6-2, ST-6-3, ST-6-4 all Done. Authored comprehensive executive-grade `README.md` meeting all Santrionn assignment specifications, documented mandatory AI tool usage disclosure, verified `.env.example` completeness, and executed clean-clone sanity check with all 58/58 tests passing and client building cleanly. Platform implementation 100% complete. |
+| 1.16.0  | 2026-10-24 20:53 IST | Commenced Stage 6: Marked ST-6-1 through ST-6-4 In Progress. Authoring comprehensive executive-grade `README.md`, AI tool usage disclosure, verifying `.env.example` & Postman collection, and executing clean-clone verification. |
 | 1.15.0  | 2026-10-24 20:25 IST | Monorepo Restructuring: Decoupled and shifted all backend code, Prisma schemas, database migrations, and test suites into dedicated `server/` directory alongside `client/`. Configured root `package.json` with unified workspace orchestrator scripts (`npm test`, `npm run dev:server`, `npm run dev:client`, `npm run seed`, `npm run build`). Verified 58/58 test pass rate. |
 | 1.14.0  | 2026-10-24 14:32 IST | Completed Stage 5: ST-5-1, ST-5-2, ST-5-3 all Done. Built React 18 + Vite command dashboard in `client/` with Leaflet.js map, dynamic Haversine radius circle (1–50km), real-time Socket.io live sync & alert banner, credentialed RBAC authentication switcher, NLP incident reporting, and Cache-Aside (`X-Cache`) inspector. Verified end-to-end via automated browser subagent. |
 | 1.13.0  | 2026-10-24 14:18 IST | Commenced Stage 5: Marked ST-5-1 through ST-5-3 In Progress. Refined task specifications to mandate credentialed JWT authentication, strict shared TypeScript enums, nested location schemas for emergency resources, and live Cache-Aside / circuit-breaker visual inspection. |
@@ -40,12 +45,12 @@
 
 | Metric         | Count |
 | :------------- | :---- |
-| Total Tasks    | 24    |
-| Done           | 22    |
+| Total Tasks    | 30    |
+| Done           | 30    |
 | In Progress    | 0     |
 | Testing        | 0     |
 | Blocked        | 0     |
-| To Do          | 2     |
+| To Do          | 0     |
 
 ---
 
@@ -142,10 +147,24 @@
 
 | Task ID | Task Description | Status | Related FRs / NFRs | Notes |
 | :--- | :--- | :--- | :--- | :--- |
-| **ST-6-1** | Write comprehensive `README.md` (Setup, Architecture, DB Rationale, Geospatial explanation, Caching strategy, Trade-offs). | To Do | NFR-002, NFR-005 | Core deliverable |
-| **ST-6-2** | Document AI-assisted development disclosure section detailing tools used, manual modifications, and validation. | To Do | NFR-005 | Required disclosure |
-| **ST-6-3** | Export Postman API Collection / OpenAPI specification and verify `.env.example` completeness. | To Do | NFR-002 | API docs |
-| **ST-6-4** | Perform clean-clone sanity check: test `npm install`, `npm run seed`, `npm test`, and `npm run dev`. | To Do | NFR-002 | Zero-friction verify |
+| **ST-6-1** | Write comprehensive `README.md` (Setup, Architecture, DB Rationale, Geospatial explanation, Caching strategy, Trade-offs). | Done | NFR-002, NFR-005 | Core deliverable |
+| **ST-6-2** | Document AI-assisted development disclosure section detailing tools used, manual modifications, and validation. | Done | NFR-005 | Required disclosure |
+| **ST-6-3** | Export Postman API Collection / OpenAPI specification and verify `.env.example` completeness. | Done | NFR-002 | API docs |
+| **ST-6-4** | Perform clean-clone sanity check: test `npm install`, `npm run seed`, `npm test`, and `npm run dev`. | Done | NFR-002 | Zero-friction verify |
+
+---
+
+### Stage 7: Professional Containerization & Docker Packaging
+**Goal**: Deliver a zero-friction, production-grade Docker containerization setup enabling any developer or reviewer to clone and start the entire platform with a single command (`docker compose up --build`).  
+**Depends On**: Stage 6  
+**Scalability Note**: Isolated Docker network connects Nginx SPA reverse proxy to Node.js server with automatic database push, seeding, and healthchecks.
+
+| Task ID | Task Description | Status | Related FRs / NFRs | Notes |
+| :--- | :--- | :--- | :--- | :--- |
+| **ST-7-1** | Create `server/Dockerfile`, `server/.dockerignore`, and initialization startup script with automated Prisma push and database seeding. | Done | NFR-002, NFR-005 | Backend container |
+| **ST-7-2** | Create `client/Dockerfile`, `client/nginx.conf`, and `client/.dockerignore` with multi-stage build and Nginx reverse proxy. | Done | NFR-002, NFR-005 | Frontend container |
+| **ST-7-3** | Create root `docker-compose.yml` orchestrating `server` and `client` services with healthchecks, environment parameters, and persistent volume. | Done | NFR-002 | Compose orchestration |
+| **ST-7-4** | Update documentation (`README.md`, `TRD.md`, `TDS.md`, `STAGES.md`) detailing the Docker 1-command startup workflow. | Done | NFR-005 | Docker docs |
 
 ---
 

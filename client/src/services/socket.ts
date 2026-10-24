@@ -1,7 +1,9 @@
 import { io, Socket } from 'socket.io-client';
 import { RealtimeEvent, DisasterItem } from '../types/enums';
 
-const SOCKET_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const SOCKET_URL = import.meta.env.VITE_API_URL !== undefined && import.meta.env.VITE_API_URL !== ''
+  ? import.meta.env.VITE_API_URL
+  : (import.meta.env.DEV ? 'http://localhost:3000' : undefined);
 
 class SocketService {
   private socket: Socket | null = null;

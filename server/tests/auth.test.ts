@@ -124,6 +124,51 @@ describe('Authentication & Role-Based Access Control (RBAC) Suite', () => {
       expect(dbUser?.passwordHash).toContain(':');
     });
 
+    it('allows user to explicitly register with VIEWER role', async () => {
+      const viewerUsername = `test_agent_viewer_${Date.now()}`;
+      const res = await request(app)
+        .post('/api/v1/auth/register')
+        .send({
+          username: viewerUsername,
+          password: config.auth.testUserPassword,
+          role: UserRole.VIEWER,
+        });
+
+      expect(res.status).toBe(201);
+      expect(res.body.status).toBe('success');
+      expect(res.body.user.role).toBe(UserRole.VIEWER);
+      expect(res.body.user.username).toBe(viewerUsername);
+    });
+
+    it('allows user to explicitly register with CONTRIBUTOR role', async () => {
+      const contribUsername = `test_agent_contrib_${Date.now()}`;
+      const res = await request(app)
+        .post('/api/v1/auth/register')
+        .send({
+          username: contribUsername,
+          password: config.auth.testUserPassword,
+          role: UserRole.CONTRIBUTOR,
+        });
+
+      expect(res.status).toBe(201);
+      expect(res.body.status).toBe('success');
+      expect(res.body.user.role).toBe(UserRole.CONTRIBUTOR);
+      expect(res.body.user.username).toBe(contribUsername);
+    });
+
+    it('rejects registration when attempting to self-assign ADMIN role', async () => {
+      const res = await request(app)
+        .post('/api/v1/auth/register')
+        .send({
+          username: `test_agent_admin_${Date.now()}`,
+          password: config.auth.testUserPassword,
+          role: 'ADMIN',
+        });
+
+      expect(res.status).toBe(400);
+      expect(res.body.code).toBe('BAD_REQUEST');
+    });
+
     it('rejects registration with a duplicate username with HTTP 409 Conflict', async () => {
       const res = await request(app)
         .post('/api/v1/auth/register')

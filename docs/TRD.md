@@ -3,11 +3,11 @@
 
 | Field         | Value                                                  |
 | :------------ | :----------------------------------------------------- |
-| **Version**   | 1.2.0                                                  |
+| **Version**   | 1.4.0                                                  |
 | **Status**    | Approved                                               |
 | **Owner**     | Soham Khare                                            |
 | **Created**   | 2026-10-23 15:40 IST                                   |
-| **Updated**   | 2026-10-24 20:25 IST                                   |
+| **Updated**   | 2026-10-24 22:40 IST                                   |
 | **Project**   | Disaster Response Coordination Platform (DRCP)         |
 
 ---
@@ -16,6 +16,8 @@
 
 | Version | Date & Time          | Summary of Changes                                                          |
 | :------ | :------------------- | :-------------------------------------------------------------------------- |
+| 1.4.0   | 2026-10-24 22:40 IST | Production Containerization: Containerized platform with Node.js 20 Alpine server, multi-stage React 18 + Vite Nginx reverse proxy client, and root `docker-compose.yml` with healthchecks and persistent volumes for 1-command startup (`docker compose up --build`). |
+| 1.3.0   | 2026-10-24 22:30 IST | User Registration Role Selection: Extended registration workflow (`POST /api/v1/auth/register`) and frontend `AuthModal` to allow registering users to choose between `CONTRIBUTOR` (incident/resource management) and `VIEWER` (read-only monitoring). Self-assignment of `ADMIN` is strictly forbidden and rejected. |
 | 1.2.0   | 2026-10-24 20:25 IST | Project Architecture Modularization: Formally decoupled the solution into dedicated `server/` (Node.js API, Socket.io, Prisma, Vitest) and `client/` (React 18 + Vite PWA) workspaces under a unified root monorepo with cross-workspace orchestrator scripts. |
 | 1.1.0   | 2026-10-24 11:45 IST | Hardened Authentication & RBAC: Enforced password verification (scrypt+salt), system-assigned database roles, removal of client header role self-claiming, and strictly validated JWT / API-key authorization. |
 | 1.0.1   | 2026-10-23 16:11 IST | Updated document owner to Soham Khare                                      |
@@ -58,6 +60,7 @@ DRCP solves these problems by providing an automated, resilient, and role-govern
 8. **Automated Test Suite:** Integration and unit tests located in `server/tests/` validating endpoints, schema enforcement, business rules, and integration mocks.
 9. **Interactive Verification UI:** Single-page dashboard located in `client/` with interactive Leaflet map to visually demonstrate radius queries and real-time events.
 10. **Clean Monorepo Workspace Structure:** Clear division between `server/` (Express API) and `client/` (React 18 PWA) with root orchestrator scripts.
+11. **Production Docker Containerization:** Automated container packaging with `docker-compose.yml`, Node.js Alpine backend, and multi-stage Nginx reverse proxy frontend with persistent SQLite database volume.
 
 ### 3.2 Out of Scope
 1. Enterprise Multi-Factor Authentication (MFA) and external OAuth2 third-party SSO (internal password hashing with scrypt and signed JWTs are used).
