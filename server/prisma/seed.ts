@@ -23,30 +23,30 @@ async function main() {
   const adminUser = await prisma.user.create({
     data: {
       id: SeedUserId.ADMIN,
-      username: config.auth.admin.username,
+      username: config.auth.admin.username || 'admin',
       passwordHash: adminPasswordHash,
       role: UserRole.ADMIN,
-      apiKey: config.auth.admin.apiKey,
+      apiKey: config.auth.admin.apiKey || SeedApiKey.ADMIN,
     },
   });
 
   const contributorUser = await prisma.user.create({
     data: {
       id: SeedUserId.CONTRIBUTOR,
-      username: config.auth.contributor.username,
+      username: config.auth.contributor.username || 'contributor',
       passwordHash: contributorPasswordHash,
       role: UserRole.CONTRIBUTOR,
-      apiKey: config.auth.contributor.apiKey,
+      apiKey: config.auth.contributor.apiKey || SeedApiKey.CONTRIBUTOR,
     },
   });
 
   const viewerUser = await prisma.user.create({
     data: {
       id: SeedUserId.VIEWER,
-      username: config.auth.viewer.username,
+      username: config.auth.viewer.username || 'viewer',
       passwordHash: viewerPasswordHash,
       role: UserRole.VIEWER,
-      apiKey: config.auth.viewer.apiKey,
+      apiKey: config.auth.viewer.apiKey || SeedApiKey.VIEWER,
     },
   });
 
